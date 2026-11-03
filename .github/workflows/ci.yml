@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and test the module
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out the module
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # The module compiles against the core contracts (openelis-spi,
+      # openelis-module-api) and the core's classes (openelisglobal:classes),
+      # which are not published to a remote repository yet: check out the core
+      # at the version this module targets and install them locally.
+      - name: Check out OpenELIS Global (modula)
+        uses: actions/checkout@v4
+        with:
+          repository: DIGI-UW/OpenELIS-Global-2
+          ref: modula
+          path: core
+          submodules: false
+
+      - name: Install the core contracts and classes
+        working-directory: core
+        run: |
+          git submodule update --init dataexport
+          mvn -q -f dataexport/pom.xml install -DskipTests -Dmaven.test.skip=true
+          mvn -q -f module-contracts/pom.xml install -DskipTests
+          mkdir -p frontend/src/languages
+          mvn -q install -DskipTests -Dmaven.test.skip=true -Dspotless.check.skip=true
+
+      - name: Build the module (backend tests, frontend build and tests, JAR)
+        run: mvn -B verify
+
+      - name: Upload the module JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: specimen-followup-module
+          path: target/specimen-followup-*.jar

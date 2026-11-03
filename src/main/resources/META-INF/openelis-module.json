@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "id": "specimen-followup",
+  "kind": "module",
+  "name": "Specimen Follow-up & Action Tracker",
+  "version": "1.0.0",
+  "description": "Tracks follow-up actions (recollection requests, investigations, missing patient information, clinician notifications) on existing patients' specimens, in the module's own table, reusing the core patient, sample and user services.",
+  "vendor": {
+    "name": "mozzy11",
+    "url": "https://github.com/mozzy11/openelis-module-specimen-followup"
+  },
+  "requires": {
+    "openelis": ">=3.4.0",
+    "coreApi": "^1.0",
+    "frontendContract": "^1.0"
+  },
+  "backend": {
+    "basePackages": ["io.github.mozzy11.openelis.followup"],
+    "activator": "io.github.mozzy11.openelis.followup.SpecimenFollowUpModule",
+    "entities": ["io.github.mozzy11.openelis.followup.domain.FollowUp"],
+    "liquibase": "liquibase/specimen-followup/changelog.xml"
+  },
+  "permissions": [
+    {
+      "key": "view",
+      "description": "Open the specimen follow-up pages and read follow-ups",
+      "defaultRoles": ["Results", "Reception", "Validation"]
+    },
+    {
+      "key": "manage",
+      "description": "Create, update and delete specimen follow-ups",
+      "defaultRoles": ["Results", "Reception"]
+    }
+  ],
+  "menu": [
+    {
+      "elementId": "menu_mod_specimen_followup",
+      "parent": "menu_sample",
+      "displayKey": "mod.specimen-followup.menu.title",
+      "toolTipKey": "mod.specimen-followup.menu.title",
+      "presentationOrder": 95,
+      "permission": "view"
+    },
+    {
+      "elementId": "menu_mod_specimen_followup_create",
+      "parent": "menu_mod_specimen_followup",
+      "displayKey": "mod.specimen-followup.menu.create",
+      "actionURL": "/m/specimen-followup/create",
+      "presentationOrder": 1,
+      "permission": "manage"
+    },
+    {
+      "elementId": "menu_mod_specimen_followup_list",
+      "parent": "menu_mod_specimen_followup",
+      "displayKey": "mod.specimen-followup.menu.list",
+      "actionURL": "/m/specimen-followup/followups",
+      "presentationOrder": 2,
+      "permission": "view"
+    }
+  ],
+  "frontend": {
+    "entry": "remoteEntry.js",
+    "messages": "messages/{locale}.json",
+    "routes": [
+      {
+        "path": "/m/specimen-followup/create",
+        "expose": "./CreateFollowUpPage",
+        "permission": "manage"
+      },
+      {
+        "path": "/m/specimen-followup/followups",
+        "expose": "./FollowUpListPage",
+        "permission": "view"
+      },
+      {
+        "path": "/m/specimen-followup/followups/:followUpId",
+        "expose": "./FollowUpDetailPage",
+        "permission": "view"
+      }
+    ]
+  },
+  "configuration": {
+    "properties": [
+      {
+        "key": "defaultDueDays",
+        "type": "integer",
+        "default": 3,
+        "description": "Days from today proposed as the due date of a new follow-up",
+        "exposeToFrontend": true
+      }
+    ]
+  }
+}

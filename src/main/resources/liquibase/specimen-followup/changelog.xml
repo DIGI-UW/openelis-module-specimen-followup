@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
+
+    <!--
+        The module's own schema. Every changeset id starts with the module id and the author is the module id
+        (the core refuses the changelog otherwise); tables use the mod_specimen_followup_ prefix in the clinlims
+        schema. Core tables are never touched: a follow-up references the core patient and sample by their ids.
+    -->
+    <changeSet id="specimen-followup-001-follow-up-table" author="specimen-followup">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists schemaName="clinlims" tableName="mod_specimen_followup_record"/>
+            </not>
+        </preConditions>
+        <createSequence schemaName="clinlims" sequenceName="mod_specimen_followup_record_seq" startValue="1" incrementBy="1"/>
+        <createSequence schemaName="clinlims" sequenceName="mod_specimen_followup_number_seq" startValue="1" incrementBy="1"/>
+        <createTable schemaName="clinlims" tableName="mod_specimen_followup_record">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_mod_specimen_followup_record"/>
+            </column>
+            <column name="follow_up_number" type="VARCHAR(20)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_mod_specimen_followup_number"/>
+            </column>
+            <column name="patient_id" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sample_id" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="accession_number" type="VARCHAR(50)"/>
+            <column name="action_type" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="priority" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="assigned_user_id" type="VARCHAR(20)"/>
+            <column name="due_date" type="DATE"/>
+            <column name="notes" type="VARCHAR(4000)"/>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by_user_id" type="INTEGER"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sys_user_id" type="INTEGER"/>
+            <column name="lastupdated" type="TIMESTAMP" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex schemaName="clinlims" tableName="mod_specimen_followup_record" indexName="idx_mod_specimen_followup_patient">
+            <column name="patient_id"/>
+        </createIndex>
+        <createIndex schemaName="clinlims" tableName="mod_specimen_followup_record" indexName="idx_mod_specimen_followup_sample">
+            <column name="sample_id"/>
+        </createIndex>
+        <createIndex schemaName="clinlims" tableName="mod_specimen_followup_record" indexName="idx_mod_specimen_followup_status">
+            <column name="status"/>
+        </createIndex>
+        <rollback>
+            <dropTable schemaName="clinlims" tableName="mod_specimen_followup_record"/>
+            <dropSequence schemaName="clinlims" sequenceName="mod_specimen_followup_record_seq"/>
+            <dropSequence schemaName="clinlims" sequenceName="mod_specimen_followup_number_seq"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

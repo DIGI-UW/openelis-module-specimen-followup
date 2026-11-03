@@ -1,0 +1,9 @@
+target/
+frontend/node_modules/
+frontend/dist/
+frontend/.mf/
+*.log
+.DS_Store
+.idea/
+*.iml
+.vscode/

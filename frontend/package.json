@@ -1,0 +1,41 @@
+{
+  "name": "openelis-module-specimen-followup-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pages of the Specimen Follow-up & Action Tracker module, built as a Module Federation remote of the OpenELIS shell",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "test": "vitest run --passWithNoTests",
+    "format": "prettier --write \"src/**/*.{js,jsx,json}\" vite.config.js",
+    "check-format": "prettier --check \"src/**/*.{js,jsx,json}\" vite.config.js"
+  },
+  "peerDependencies": {
+    "@carbon/icons-react": "^11.17.0",
+    "@carbon/react": "^1.15.0",
+    "@tanstack/react-query": "^4.44.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-intl": "^5.20.12",
+    "react-router-dom": "^5.2.0"
+  },
+  "devDependencies": {
+    "@carbon/icons-react": "^11.77.1",
+    "@carbon/react": "^1.104.1",
+    "@module-federation/vite": "^1.23.8",
+    "@tanstack/react-query": "^4.44.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^12.1.5",
+    "@vitejs/plugin-react": "^6.0.1",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-intl": "^5.25.1",
+    "react-router-dom": "^5.3.4",
+    "sass": "^1.93.2",
+    "vite": "^8.3.2",
+    "vitest": "^4.1.11"
+  }
+}
