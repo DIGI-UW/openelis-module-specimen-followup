@@ -1,4 +1,4 @@
-package io.github.mozzy11.openelis.followup.domain;
+package org.openelisglobal.module.followup.domain;
 
 import java.util.EnumSet;
 import java.util.Set;

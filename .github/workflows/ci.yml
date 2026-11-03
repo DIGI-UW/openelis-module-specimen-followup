@@ -6,6 +6,16 @@ on:
   pull_request:
   workflow_dispatch:
 
+# The module compiles against the core contracts (openelis-spi,
+# openelis-module-api) and the core's classes (openelisglobal:classes), which
+# are not published to a remote repository yet: the workflow checks out
+# OpenELIS Global at the branch the module targets and installs them locally,
+# cached by the core commit so a module change does not rebuild the core.
+# Repository variables CORE_REPOSITORY and CORE_REF override the source.
+env:
+  CORE_REPOSITORY: ${{ vars.CORE_REPOSITORY || 'DIGI-UW/OpenELIS-Global-2' }}
+  CORE_REF: ${{ vars.CORE_REF || 'modula' }}
+
 jobs:
   build:
     name: Build and test the module
@@ -19,26 +29,37 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-          cache: maven
 
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      # The module compiles against the core contracts (openelis-spi,
-      # openelis-module-api) and the core's classes (openelisglobal:classes),
-      # which are not published to a remote repository yet: check out the core
-      # at the version this module targets and install them locally.
-      - name: Check out OpenELIS Global (modula)
+      - name: Check out OpenELIS Global
         uses: actions/checkout@v4
         with:
-          repository: DIGI-UW/OpenELIS-Global-2
-          ref: modula
+          repository: ${{ env.CORE_REPOSITORY }}
+          ref: ${{ env.CORE_REF }}
           path: core
           submodules: false
 
+      - name: Name the core commit
+        id: core
+        run: echo "sha=$(git -C core rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache the installed core artifacts
+        id: core-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/openelisglobal
+          key: core-artifacts-${{ steps.core.outputs.sha }}
+
+      - name: Cache the other Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/openelisglobal
+          key: maven-${{ hashFiles('pom.xml', 'core/pom.xml', 'core/module-contracts/**/pom.xml') }}
+          restore-keys: maven-
+
       - name: Install the core contracts and classes
+        if: steps.core-cache.outputs.cache-hit != 'true'
         working-directory: core
         run: |
           git submodule update --init dataexport

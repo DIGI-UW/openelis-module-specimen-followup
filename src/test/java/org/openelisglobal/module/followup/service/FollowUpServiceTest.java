@@ -1,4 +1,4 @@
-package io.github.mozzy11.openelis.followup.service;
+package org.openelisglobal.module.followup.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -11,18 +11,18 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.github.mozzy11.openelis.followup.api.FollowUpDtos.FieldProblem;
-import io.github.mozzy11.openelis.followup.api.FollowUpDtos.FollowUpRequest;
-import io.github.mozzy11.openelis.followup.api.FollowUpDtos.FollowUpView;
-import io.github.mozzy11.openelis.followup.api.FollowUpDtos.PatientSummary;
-import io.github.mozzy11.openelis.followup.api.FollowUpDtos.SpecimenSummary;
-import io.github.mozzy11.openelis.followup.api.FollowUpDtos.StatusChangeRequest;
-import io.github.mozzy11.openelis.followup.api.FollowUpDtos.UserSummary;
-import io.github.mozzy11.openelis.followup.domain.FollowUp;
-import io.github.mozzy11.openelis.followup.domain.FollowUpActionType;
-import io.github.mozzy11.openelis.followup.domain.FollowUpPriority;
-import io.github.mozzy11.openelis.followup.domain.FollowUpStatus;
-import io.github.mozzy11.openelis.followup.repository.FollowUpRepository;
+import org.openelisglobal.module.followup.api.FollowUpDtos.FieldProblem;
+import org.openelisglobal.module.followup.api.FollowUpDtos.FollowUpRequest;
+import org.openelisglobal.module.followup.api.FollowUpDtos.FollowUpView;
+import org.openelisglobal.module.followup.api.FollowUpDtos.PatientSummary;
+import org.openelisglobal.module.followup.api.FollowUpDtos.SpecimenSummary;
+import org.openelisglobal.module.followup.api.FollowUpDtos.StatusChangeRequest;
+import org.openelisglobal.module.followup.api.FollowUpDtos.UserSummary;
+import org.openelisglobal.module.followup.domain.FollowUp;
+import org.openelisglobal.module.followup.domain.FollowUpActionType;
+import org.openelisglobal.module.followup.domain.FollowUpPriority;
+import org.openelisglobal.module.followup.domain.FollowUpStatus;
+import org.openelisglobal.module.followup.repository.FollowUpRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

@@ -1,10 +1,10 @@
-package io.github.mozzy11.openelis.followup;
+package org.openelisglobal.module.followup;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import io.github.mozzy11.openelis.followup.domain.FollowUp;
+import org.openelisglobal.module.followup.domain.FollowUp;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;

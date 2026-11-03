@@ -1,8 +1,8 @@
-package io.github.mozzy11.openelis.followup.api;
+package org.openelisglobal.module.followup.api;
 
-import io.github.mozzy11.openelis.followup.domain.FollowUpActionType;
-import io.github.mozzy11.openelis.followup.domain.FollowUpPriority;
-import io.github.mozzy11.openelis.followup.domain.FollowUpStatus;
+import org.openelisglobal.module.followup.domain.FollowUpActionType;
+import org.openelisglobal.module.followup.domain.FollowUpPriority;
+import org.openelisglobal.module.followup.domain.FollowUpStatus;
 import java.time.LocalDate;
 import java.util.List;
 

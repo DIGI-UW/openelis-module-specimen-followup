@@ -1,4 +1,4 @@
-package io.github.mozzy11.openelis.followup.domain;
+package org.openelisglobal.module.followup.domain;
 
 /** The actions a follow-up asks for. Module-specific: none of them triggers a core workflow. */
 public enum FollowUpActionType {

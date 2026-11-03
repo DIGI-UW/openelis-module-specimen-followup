@@ -1,4 +1,4 @@
-package io.github.mozzy11.openelis.followup.service;
+package org.openelisglobal.module.followup.service;
 
 /** No follow-up with that id. */
 public class FollowUpNotFoundException extends RuntimeException {

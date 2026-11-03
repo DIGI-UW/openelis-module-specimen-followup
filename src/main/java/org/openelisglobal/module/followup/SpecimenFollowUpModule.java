@@ -1,4 +1,4 @@
-package io.github.mozzy11.openelis.followup;
+package org.openelisglobal.module.followup;
 
 import org.openelisglobal.module.api.ModuleContext;
 import org.openelisglobal.module.api.OpenElisModule;

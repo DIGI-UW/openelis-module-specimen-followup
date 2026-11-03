@@ -84,7 +84,7 @@ and reload: the shell loads the pages from this server instead of the JAR.
 pom.xml                                   provided: openelis-module-api, openelis-spi, openelisglobal:classes
 src/main/resources/META-INF/openelis-module.json
 src/main/resources/liquibase/specimen-followup/changelog.xml
-src/main/java/io/github/mozzy11/openelis/followup/
+src/main/java/org/openelisglobal/module/followup/
   SpecimenFollowUpModule.java             lifecycle (validate, onStart, onUpgrade)
   domain/                                 FollowUp entity, enums with the status rules
   repository/FollowUpRepository.java      JPA on the core entity manager

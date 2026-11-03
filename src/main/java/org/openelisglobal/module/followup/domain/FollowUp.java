@@ -1,4 +1,4 @@
-package io.github.mozzy11.openelis.followup.domain;
+package org.openelisglobal.module.followup.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,6 +1,6 @@
-package io.github.mozzy11.openelis.followup.service;
+package org.openelisglobal.module.followup.service;
 
-import io.github.mozzy11.openelis.followup.api.FollowUpDtos.FieldProblem;
+import org.openelisglobal.module.followup.api.FollowUpDtos.FieldProblem;
 import java.util.List;
 
 /** A request the module refuses, with one message per field so the form can show them in place. */

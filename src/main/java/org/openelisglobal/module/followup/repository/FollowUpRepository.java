@@ -1,9 +1,9 @@
-package io.github.mozzy11.openelis.followup.repository;
+package org.openelisglobal.module.followup.repository;
 
-import io.github.mozzy11.openelis.followup.domain.FollowUp;
-import io.github.mozzy11.openelis.followup.domain.FollowUpActionType;
-import io.github.mozzy11.openelis.followup.domain.FollowUpPriority;
-import io.github.mozzy11.openelis.followup.domain.FollowUpStatus;
+import org.openelisglobal.module.followup.domain.FollowUp;
+import org.openelisglobal.module.followup.domain.FollowUpActionType;
+import org.openelisglobal.module.followup.domain.FollowUpPriority;
+import org.openelisglobal.module.followup.domain.FollowUpStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;

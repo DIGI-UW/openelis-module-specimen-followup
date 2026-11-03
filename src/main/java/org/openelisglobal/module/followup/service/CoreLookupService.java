@@ -1,9 +1,9 @@
-package io.github.mozzy11.openelis.followup.service;
+package org.openelisglobal.module.followup.service;
 
-import io.github.mozzy11.openelis.followup.api.FollowUpDtos.PatientSummary;
-import io.github.mozzy11.openelis.followup.api.FollowUpDtos.SpecimenSummary;
-import io.github.mozzy11.openelis.followup.api.FollowUpDtos.UserSummary;
-import io.github.mozzy11.openelis.followup.repository.FollowUpRepository;
+import org.openelisglobal.module.followup.api.FollowUpDtos.PatientSummary;
+import org.openelisglobal.module.followup.api.FollowUpDtos.SpecimenSummary;
+import org.openelisglobal.module.followup.api.FollowUpDtos.UserSummary;
+import org.openelisglobal.module.followup.repository.FollowUpRepository;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
