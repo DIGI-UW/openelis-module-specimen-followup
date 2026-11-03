@@ -5,8 +5,6 @@ import {
   Button,
   Column,
   DataTable,
-  DatePicker,
-  DatePickerInput,
   Grid,
   InlineNotification,
   Loading,
@@ -26,14 +24,26 @@ import {
   TextArea,
 } from "@carbon/react";
 import { PageBreadCrumb, SearchPatientForm } from "openelis_core/components";
-import { useModuleConfig, useNotifications, useOpenElisApi } from "openelis_core/sdk";
-import { NotificationKinds, AlertDialog } from "openelis_core/components";
+import {
+  useConfigurationProperties,
+  useModuleConfig,
+  useNotifications,
+  useOpenElisApi,
+} from "openelis_core/sdk";
+import {
+  NotificationKinds,
+  AlertDialog,
+  CustomDatePicker,
+} from "openelis_core/components";
 import {
   ROUTES,
   endpoints,
   fieldErrorsOf,
   isRefusal,
+  isoToSiteDate,
   PRIORITIES,
+  siteDateFormat,
+  siteDateToIso,
   todayPlusDays,
 } from "../followUpApi";
 import PatientCard from "../components/PatientCard";
@@ -57,6 +67,7 @@ export default function CreateFollowUpPage() {
   const history = useHistory();
   const api = useOpenElisApi();
   const config = useModuleConfig("specimen-followup");
+  const dateFormat = siteDateFormat(useConfigurationProperties());
   const notifications = useNotifications();
   const [patient, setPatient] = useState(null);
   const [specimens, setSpecimens] = useState(null);
@@ -69,19 +80,29 @@ export default function CreateFollowUpPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    api.get(endpoints.options).then(setOptions).catch(() => setOptions({ actionTypes: [] }));
-    api.get(endpoints.users).then(setUsers).catch(() => setUsers([]));
+    api
+      .get(endpoints.options)
+      .then(setOptions)
+      .catch(() => setOptions({ actionTypes: [] }));
+    api
+      .get(endpoints.users)
+      .then(setUsers)
+      .catch(() => setUsers([]));
   }, [api]);
 
   useEffect(() => {
     if (config && config.defaultDueDays !== undefined && !form.dueDate) {
-      setForm((current) => ({ ...current, dueDate: todayPlusDays(config.defaultDueDays) }));
+      setForm((current) => ({
+        ...current,
+        dueDate: todayPlusDays(config.defaultDueDays),
+      }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config && config.defaultDueDays]);
 
   const selectPatient = (selected) => {
-    const id = selected && (selected.patientPK || selected.patientId || selected.id);
+    const id =
+      selected && (selected.patientPK || selected.patientId || selected.id);
     if (!id) {
       return;
     }
@@ -113,19 +134,29 @@ export default function CreateFollowUpPage() {
   const validate = () => {
     const found = {};
     if (!patient) {
-      found.patientId = intl.formatMessage({ id: "mod.specimen-followup.create.patientRequired" });
+      found.patientId = intl.formatMessage({
+        id: "mod.specimen-followup.create.patientRequired",
+      });
     }
     if (!selectedSampleId) {
-      found.sampleId = intl.formatMessage({ id: "mod.specimen-followup.create.specimenRequired" });
+      found.sampleId = intl.formatMessage({
+        id: "mod.specimen-followup.create.specimenRequired",
+      });
     }
     if (!form.actionType) {
-      found.actionType = intl.formatMessage({ id: "mod.specimen-followup.form.required" });
+      found.actionType = intl.formatMessage({
+        id: "mod.specimen-followup.form.required",
+      });
     }
     if (!form.description.trim()) {
-      found.description = intl.formatMessage({ id: "mod.specimen-followup.form.required" });
+      found.description = intl.formatMessage({
+        id: "mod.specimen-followup.form.required",
+      });
     }
     if (!form.priority) {
-      found.priority = intl.formatMessage({ id: "mod.specimen-followup.form.required" });
+      found.priority = intl.formatMessage({
+        id: "mod.specimen-followup.form.required",
+      });
     }
     setErrors(found);
     return Object.keys(found).length === 0;
@@ -152,7 +183,9 @@ export default function CreateFollowUpPage() {
       setErrors(fieldErrorsOf(response));
       notifications.addNotification({
         kind: NotificationKinds.error,
-        title: intl.formatMessage({ id: "mod.specimen-followup.create.failed" }),
+        title: intl.formatMessage({
+          id: "mod.specimen-followup.create.failed",
+        }),
         message: (response && response.message) || "",
       });
       notifications.setNotificationVisible(true);
@@ -172,12 +205,42 @@ export default function CreateFollowUpPage() {
 
   const specimenHeaders = useMemo(
     () => [
-      { key: "accessionNumber", header: intl.formatMessage({ id: "mod.specimen-followup.specimen.accession" }) },
-      { key: "sampleTypes", header: intl.formatMessage({ id: "mod.specimen-followup.specimen.types" }) },
-      { key: "collectionDate", header: intl.formatMessage({ id: "mod.specimen-followup.specimen.collected" }) },
-      { key: "receivedDate", header: intl.formatMessage({ id: "mod.specimen-followup.specimen.received" }) },
-      { key: "status", header: intl.formatMessage({ id: "mod.specimen-followup.specimen.status" }) },
-      { key: "outstandingFollowUps", header: intl.formatMessage({ id: "mod.specimen-followup.specimen.outstanding" }) },
+      {
+        key: "accessionNumber",
+        header: intl.formatMessage({
+          id: "mod.specimen-followup.specimen.accession",
+        }),
+      },
+      {
+        key: "sampleTypes",
+        header: intl.formatMessage({
+          id: "mod.specimen-followup.specimen.types",
+        }),
+      },
+      {
+        key: "collectionDate",
+        header: intl.formatMessage({
+          id: "mod.specimen-followup.specimen.collected",
+        }),
+      },
+      {
+        key: "receivedDate",
+        header: intl.formatMessage({
+          id: "mod.specimen-followup.specimen.received",
+        }),
+      },
+      {
+        key: "status",
+        header: intl.formatMessage({
+          id: "mod.specimen-followup.specimen.status",
+        }),
+      },
+      {
+        key: "outstandingFollowUps",
+        header: intl.formatMessage({
+          id: "mod.specimen-followup.specimen.outstanding",
+        }),
+      },
     ],
     [intl],
   );
@@ -220,10 +283,18 @@ export default function CreateFollowUpPage() {
           {patient ? (
             <PatientCard patient={patient} onClear={clearPatient} />
           ) : (
-            <SearchPatientForm getSelectedPatient={selectPatient} idPrefix="followup" />
+            <SearchPatientForm
+              getSelectedPatient={selectPatient}
+              idPrefix="followup"
+            />
           )}
           {errors.patientId && (
-            <InlineNotification kind="error" lowContrast hideCloseButton title={errors.patientId} />
+            <InlineNotification
+              kind="error"
+              lowContrast
+              hideCloseButton
+              title={errors.patientId}
+            />
           )}
         </Column>
 
@@ -238,7 +309,9 @@ export default function CreateFollowUpPage() {
                 kind="error"
                 lowContrast
                 hideCloseButton
-                title={intl.formatMessage({ id: "mod.specimen-followup.create.specimensFailed" })}
+                title={intl.formatMessage({
+                  id: "mod.specimen-followup.create.specimensFailed",
+                })}
               />
             )}
             {specimens && specimens.length === 0 && !specimensError && (
@@ -248,14 +321,28 @@ export default function CreateFollowUpPage() {
             )}
             {specimens && specimens.length > 0 && (
               <DataTable rows={specimenRows} headers={specimenHeaders} radio>
-                {({ rows, headers, getHeaderProps, getRowProps, getSelectionProps, getTableProps }) => (
+                {({
+                  rows,
+                  headers,
+                  getHeaderProps,
+                  getRowProps,
+                  getSelectionProps,
+                  getTableProps,
+                }) => (
                   <TableContainer>
-                    <Table {...getTableProps()} size="md" aria-label="specimens">
+                    <Table
+                      {...getTableProps()}
+                      size="md"
+                      aria-label="specimens"
+                    >
                       <TableHead>
                         <TableRow>
                           <th scope="col" />
                           {headers.map((header) => (
-                            <TableHeader {...getHeaderProps({ header })} key={header.key}>
+                            <TableHeader
+                              {...getHeaderProps({ header })}
+                              key={header.key}
+                            >
                               {header.header}
                             </TableHeader>
                           ))}
@@ -263,13 +350,20 @@ export default function CreateFollowUpPage() {
                       </TableHead>
                       <TableBody>
                         {rows.map((row) => (
-                          <TableRow {...getRowProps({ row })} key={row.id} data-testid={`specimen-row-${row.id}`}>
+                          <TableRow
+                            {...getRowProps({ row })}
+                            key={row.id}
+                            data-testid={`specimen-row-${row.id}`}
+                          >
                             <TableSelectRow
                               {...getSelectionProps({ row })}
                               checked={selectedSampleId === row.id}
                               onSelect={() => {
                                 setSelectedSampleId(row.id);
-                                setErrors((current) => ({ ...current, sampleId: undefined }));
+                                setErrors((current) => ({
+                                  ...current,
+                                  sampleId: undefined,
+                                }));
                               }}
                             />
                             {row.cells.map((cell) => (
@@ -284,7 +378,12 @@ export default function CreateFollowUpPage() {
               </DataTable>
             )}
             {errors.sampleId && (
-              <InlineNotification kind="error" lowContrast hideCloseButton title={errors.sampleId} />
+              <InlineNotification
+                kind="error"
+                lowContrast
+                hideCloseButton
+                title={errors.sampleId}
+              />
             )}
           </Column>
         )}
@@ -299,21 +398,38 @@ export default function CreateFollowUpPage() {
             <Column lg={8} md={4} sm={4}>
               <Select
                 id="followup-action-type"
-                labelText={intl.formatMessage({ id: "mod.specimen-followup.field.actionType" }) + " *"}
+                labelText={
+                  intl.formatMessage({
+                    id: "mod.specimen-followup.field.actionType",
+                  }) + " *"
+                }
                 value={form.actionType}
                 onChange={update("actionType")}
                 invalid={Boolean(errors.actionType)}
                 invalidText={errors.actionType}
               >
-                <SelectItem value="" text={intl.formatMessage({ id: "mod.specimen-followup.form.choose" })} />
+                <SelectItem
+                  value=""
+                  text={intl.formatMessage({
+                    id: "mod.specimen-followup.form.choose",
+                  })}
+                />
                 {(options.actionTypes || []).map((type) => (
-                  <SelectItem key={type.value} value={type.value} text={type.label} />
+                  <SelectItem
+                    key={type.value}
+                    value={type.value}
+                    text={type.label}
+                  />
                 ))}
               </Select>
             </Column>
             <Column lg={8} md={4} sm={4}>
               <RadioButtonGroup
-                legendText={intl.formatMessage({ id: "mod.specimen-followup.field.priority" }) + " *"}
+                legendText={
+                  intl.formatMessage({
+                    id: "mod.specimen-followup.field.priority",
+                  }) + " *"
+                }
                 name="followup-priority"
                 valueSelected={form.priority}
                 onChange={(value) => update("priority")(value)}
@@ -325,7 +441,9 @@ export default function CreateFollowUpPage() {
                     key={priority}
                     id={`followup-priority-${priority}`}
                     value={priority}
-                    labelText={intl.formatMessage({ id: `mod.specimen-followup.priority.${priority}` })}
+                    labelText={intl.formatMessage({
+                      id: `mod.specimen-followup.priority.${priority}`,
+                    })}
                   />
                 ))}
               </RadioButtonGroup>
@@ -333,7 +451,11 @@ export default function CreateFollowUpPage() {
             <Column lg={16} md={8} sm={4}>
               <TextArea
                 id="followup-description"
-                labelText={intl.formatMessage({ id: "mod.specimen-followup.field.description" }) + " *"}
+                labelText={
+                  intl.formatMessage({
+                    id: "mod.specimen-followup.field.description",
+                  }) + " *"
+                }
                 value={form.description}
                 onChange={update("description")}
                 maxCount={2000}
@@ -345,40 +467,50 @@ export default function CreateFollowUpPage() {
             <Column lg={8} md={4} sm={4}>
               <Select
                 id="followup-assignee"
-                labelText={intl.formatMessage({ id: "mod.specimen-followup.field.assignee" })}
+                labelText={intl.formatMessage({
+                  id: "mod.specimen-followup.field.assignee",
+                })}
                 value={form.assignedUserId}
                 onChange={update("assignedUserId")}
                 invalid={Boolean(errors.assignedUserId)}
                 invalidText={errors.assignedUserId}
               >
-                <SelectItem value="" text={intl.formatMessage({ id: "mod.specimen-followup.form.unassigned" })} />
+                <SelectItem
+                  value=""
+                  text={intl.formatMessage({
+                    id: "mod.specimen-followup.form.unassigned",
+                  })}
+                />
                 {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id} text={`${user.displayName} (${user.loginName})`} />
+                  <SelectItem
+                    key={user.id}
+                    value={user.id}
+                    text={`${user.displayName} (${user.loginName})`}
+                  />
                 ))}
               </Select>
             </Column>
             <Column lg={8} md={4} sm={4}>
-              <DatePicker
-                datePickerType="single"
-                dateFormat="Y-m-d"
-                value={form.dueDate}
-                onChange={(dates) =>
-                  update("dueDate")(dates && dates[0] ? dates[0].toISOString().substring(0, 10) : "")
+              <CustomDatePicker
+                id="followup-due-date"
+                labelText={intl.formatMessage({
+                  id: "mod.specimen-followup.field.dueDate",
+                })}
+                value={isoToSiteDate(form.dueDate, dateFormat)}
+                updateStateValue
+                onChange={(text) =>
+                  update("dueDate")(siteDateToIso(text, dateFormat))
                 }
-              >
-                <DatePickerInput
-                  id="followup-due-date"
-                  labelText={intl.formatMessage({ id: "mod.specimen-followup.field.dueDate" })}
-                  placeholder="yyyy-mm-dd"
-                  invalid={Boolean(errors.dueDate)}
-                  invalidText={errors.dueDate}
-                />
-              </DatePicker>
+                invalid={Boolean(errors.dueDate)}
+                invalidText={errors.dueDate}
+              />
             </Column>
             <Column lg={16} md={8} sm={4}>
               <TextArea
                 id="followup-notes"
-                labelText={intl.formatMessage({ id: "mod.specimen-followup.field.notes" })}
+                labelText={intl.formatMessage({
+                  id: "mod.specimen-followup.field.notes",
+                })}
                 value={form.notes}
                 onChange={update("notes")}
                 maxCount={4000}
@@ -391,7 +523,10 @@ export default function CreateFollowUpPage() {
               <Button id="followup-save" onClick={save} disabled={saving}>
                 <FormattedMessage id="mod.specimen-followup.create.save" />
               </Button>{" "}
-              <Button kind="secondary" onClick={() => history.push(ROUTES.list)}>
+              <Button
+                kind="secondary"
+                onClick={() => history.push(ROUTES.list)}
+              >
                 <FormattedMessage id="mod.specimen-followup.form.cancel" />
               </Button>
             </Column>
