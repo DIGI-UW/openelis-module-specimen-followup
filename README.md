@@ -57,6 +57,12 @@ The JAR, `target/specimen-followup-<version>.jar`, carries the manifest
 (`META-INF/openelis-module.json`), the classes, the changelog and the prebuilt
 pages (`META-INF/resources/modules/specimen-followup/`).
 
+CI (`.github/workflows/ci.yml`) does the same on every push and pull request:
+it checks out the core named by the `CORE_REPOSITORY` and `CORE_REF`
+repository variables (`DIGI-UW/OpenELIS-Global-2` at `modula` by default),
+installs the contracts and the core classes once per core commit (cached), runs
+`mvn verify` and uploads the JAR as a build artifact.
+
 ## Installing
 
 Copy the JAR into the deployment's modules directory (`volume/modules` in the
