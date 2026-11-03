@@ -94,11 +94,13 @@ public class FollowUpRestControllerTest {
         mockMvc.perform(get("/rest/modules/specimen-followup/followups?status=OPEN&page=0&size=20"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(1))
                 .andExpect(jsonPath("$.items[0].followUpNumber").value("FU-000007"))
-                .andExpect(jsonPath("$.items[0].patient.lastName").value("Lovelace"));
+                .andExpect(jsonPath("$.items[0].patient.lastName").value("Lovelace"))
+                .andExpect(jsonPath("$.items[0].dueDate").value("2026-11-06"));
         mockMvc.perform(get("/rest/modules/specimen-followup/followups/7")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.specimen.accessionNumber").value("25000000001"))
                 .andExpect(jsonPath("$.deletable").value(true))
-                .andExpect(jsonPath("$.allowedTransitions[0]").value("IN_PROGRESS"));
+                .andExpect(jsonPath("$.allowedTransitions[0]").value("IN_PROGRESS"))
+                .andExpect(jsonPath("$.dueDate").value("2026-11-06"));
         when(service.get(8L)).thenReturn(Optional.empty());
         mockMvc.perform(get("/rest/modules/specimen-followup/followups/8")).andExpect(status().isNotFound());
     }

@@ -1,13 +1,21 @@
 package org.openelisglobal.module.followup.api;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.openelisglobal.module.followup.domain.FollowUpActionType;
 import org.openelisglobal.module.followup.domain.FollowUpPriority;
 import org.openelisglobal.module.followup.domain.FollowUpStatus;
 import java.time.LocalDate;
 import java.util.List;
 
-/** What the module's REST API accepts and returns. Entities never leave the service layer. */
+/**
+ * What the module's REST API accepts and returns. Entities never leave the
+ * service layer. Dates travel as ISO strings whatever the host's object mapper
+ * does with java.time values (the core writes them as timestamps, which would
+ * turn a due date into an array).
+ */
 public final class FollowUpDtos {
+
+    static final String ISO_DATE = "yyyy-MM-dd";
 
     private FollowUpDtos() {
     }
@@ -20,6 +28,7 @@ public final class FollowUpDtos {
         private String description;
         private FollowUpPriority priority;
         private String assignedUserId;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ISO_DATE)
         private LocalDate dueDate;
         private String notes;
 
@@ -127,7 +136,9 @@ public final class FollowUpDtos {
     /** One follow-up with its patient and specimen details. */
     public record FollowUpView(Long id, String followUpNumber, String patientId, String sampleId, String accessionNumber,
             FollowUpActionType actionType, String actionTypeLabel, String description, FollowUpPriority priority,
-            String assignedUserId, String assignedUserName, LocalDate dueDate, String notes, FollowUpStatus status,
+            String assignedUserId, String assignedUserName,
+            @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ISO_DATE) LocalDate dueDate, String notes,
+            FollowUpStatus status,
             List<FollowUpStatus> allowedTransitions, boolean deletable, String createdAt, String lastUpdated,
             PatientSummary patient, SpecimenSummary specimen) {
     }
