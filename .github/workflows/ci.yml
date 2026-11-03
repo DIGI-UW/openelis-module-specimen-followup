@@ -67,6 +67,7 @@ jobs:
           mvn -q -f module-contracts/pom.xml install -DskipTests
           mkdir -p frontend/src/languages
           mvn -q install -DskipTests -Dmaven.test.skip=true -Dspotless.check.skip=true
+          mvn -q -f module-test/pom.xml install -DskipTests
 
       - name: Build the module (backend tests, frontend build and tests, JAR)
         run: mvn -B verify

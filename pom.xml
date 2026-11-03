@@ -52,6 +52,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.openelisglobal</groupId>
+            <artifactId>openelis-module-test</artifactId>
+            <version>${openelis.module-api.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13.2</version>

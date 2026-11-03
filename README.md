@@ -45,8 +45,9 @@ Built against the module system described in the core's
 Requirements: Java 21, Maven, and a local install of the core contracts at the
 version in `pom.xml` (`openelis.version`), produced by
 `mvn -f module-contracts/pom.xml install` and
-`mvn install -DskipTests -Dmaven.test.skip=true` in the core checkout on the
-`modula` branch. Node is downloaded by the build.
+`mvn install -DskipTests -Dmaven.test.skip=true` and
+`mvn -f module-test/pom.xml install` in the core checkout on the `modula`
+branch. Node is downloaded by the build.
 
 ```bash
 mvn verify                      # backend tests, frontend build and tests, the JAR
