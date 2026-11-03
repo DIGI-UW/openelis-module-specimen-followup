@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.hibernate.ObjectNotFoundException;
 import org.openelisglobal.common.services.IStatusService;
 import org.openelisglobal.patient.service.PatientService;
 import org.openelisglobal.patient.valueholder.Patient;
@@ -84,21 +85,30 @@ public class CoreLookupService {
     }
 
     public Optional<SpecimenSummary> specimen(String sampleId) {
-        if (sampleId == null || sampleId.isBlank()) {
-            return Optional.empty();
-        }
-        Sample sample = sampleService.get(sampleId);
-        return sample == null || sample.getId() == null ? Optional.empty() : Optional.of(summarize(sample));
+        return findSample(sampleId).map(this::summarize);
     }
 
     /** Whether the sample belongs to the patient, so a follow-up never pairs a patient with another's specimen. */
     public boolean sampleBelongsToPatient(String sampleId, String patientId) {
-        Sample sample = sampleService.get(sampleId);
-        if (sample == null || sample.getId() == null) {
+        Sample sample = findSample(sampleId).orElse(null);
+        if (sample == null) {
             return false;
         }
         Patient patient = sampleHumanService.getPatientForSample(sample);
         return patient != null && patientId != null && patientId.equals(patient.getId());
+    }
+
+    /** The core's get() throws for an id it does not know; to the module that is simply no specimen. */
+    private Optional<Sample> findSample(String sampleId) {
+        if (sampleId == null || sampleId.isBlank()) {
+            return Optional.empty();
+        }
+        try {
+            Sample sample = sampleService.get(sampleId);
+            return sample == null || sample.getId() == null ? Optional.empty() : Optional.of(sample);
+        } catch (ObjectNotFoundException e) {
+            return Optional.empty();
+        }
     }
 
     private SpecimenSummary summarize(Sample sample) {
