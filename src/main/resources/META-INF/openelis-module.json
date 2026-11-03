@@ -15,21 +15,32 @@
     "frontendContract": "^1.0"
   },
   "backend": {
-    "basePackages": ["org.openelisglobal.module.followup"],
+    "basePackages": [
+      "org.openelisglobal.module.followup"
+    ],
     "activator": "org.openelisglobal.module.followup.SpecimenFollowUpModule",
-    "entities": ["org.openelisglobal.module.followup.domain.FollowUp"],
+    "entities": [
+      "org.openelisglobal.module.followup.domain.FollowUp"
+    ],
     "liquibase": "liquibase/specimen-followup/changelog.xml"
   },
   "permissions": [
     {
       "key": "view",
       "description": "Open the specimen follow-up pages and read follow-ups",
-      "defaultRoles": ["Results", "Reception", "Validation"]
+      "defaultRoles": [
+        "Results",
+        "Reception",
+        "Validation"
+      ]
     },
     {
       "key": "manage",
       "description": "Create, update and delete specimen follow-ups",
-      "defaultRoles": ["Results", "Reception"]
+      "defaultRoles": [
+        "Results",
+        "Reception"
+      ]
     }
   ],
   "menu": [
@@ -76,6 +87,14 @@
         "path": "/m/specimen-followup/followups/:followUpId",
         "expose": "./FollowUpDetailPage",
         "permission": "view"
+      }
+    ],
+    "slots": [
+      {
+        "slot": "home.dashboard.cards",
+        "expose": "./FollowUpDashboardCard",
+        "permission": "view",
+        "order": 10
       }
     ]
   },

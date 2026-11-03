@@ -73,5 +73,7 @@
   "mod.specimen-followup.transition.OPEN": "Reopen",
   "mod.specimen-followup.transition.IN_PROGRESS": "Start work",
   "mod.specimen-followup.transition.COMPLETED": "Mark completed",
-  "mod.specimen-followup.transition.CANCELLED": "Cancel follow-up"
+  "mod.specimen-followup.transition.CANCELLED": "Cancel follow-up",
+  "mod.specimen-followup.card.title": "Open follow-ups",
+  "mod.specimen-followup.card.subtitle": "Specimen follow-ups awaiting action"
 }

@@ -53,6 +53,7 @@ export default defineConfig(({ mode }) => ({
         "./CreateFollowUpPage": "./src/pages/CreateFollowUpPage.jsx",
         "./FollowUpListPage": "./src/pages/FollowUpListPage.jsx",
         "./FollowUpDetailPage": "./src/pages/FollowUpDetailPage.jsx",
+        "./FollowUpDashboardCard": "./src/slots/FollowUpDashboardCard.jsx",
       },
       remotes: {
         openelis_core: {

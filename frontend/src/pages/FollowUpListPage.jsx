@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import {
   Button,
@@ -60,8 +60,13 @@ export default function FollowUpListPage() {
   const history = useHistory();
   const api = useOpenElisApi();
   const canManage = usePermission("mod.specimen-followup.manage");
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
-  const [applied, setApplied] = useState(EMPTY_FILTERS);
+  const location = useLocation();
+  const [initialFilters] = useState(() => {
+    const status = new URLSearchParams(location.search).get("status");
+    return status ? { ...EMPTY_FILTERS, status } : EMPTY_FILTERS;
+  });
+  const [filters, setFilters] = useState(initialFilters);
+  const [applied, setApplied] = useState(initialFilters);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(20);
   const [result, setResult] = useState(null);
