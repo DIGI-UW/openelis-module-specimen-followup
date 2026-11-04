@@ -15,7 +15,7 @@ and the specimen by their ids and reads their details from the core when it
 shows them.
 
 Built against the module system described in the core's
-[docs/modules.md](https://github.com/DIGI-UW/OpenELIS-Global-2/blob/modula/docs/modules.md).
+[docs/modules.md](https://github.com/DIGI-UW/OpenELIS-Global-2/blob/develop/docs/modules.md).
 
 ## What it adds to OpenELIS
 
@@ -45,18 +45,18 @@ Built against the module system described in the core's
 - Java 21 and Maven. Node.js on the host for the dev server; the Maven build
   downloads its own Node for the JAR.
 - Docker, and a checkout of the core
-  ([OpenELIS-Global-2](https://github.com/DIGI-UW/OpenELIS-Global-2)) on the
-  `modula` branch, where the module system lives until it reaches `develop`.
+  ([OpenELIS-Global-2](https://github.com/DIGI-UW/OpenELIS-Global-2)).
 
 ## Dev mode: run the module on the core's dev stack
 
-From the core checkout, start the dev stack with this module:
+Run the dev stack **from the OpenELIS core checkout, not from this folder**.
+`scripts/dev-stack` belongs to the core; this module's folder is only passed to
+it with `--module`:
 
 ```bash
-cd OpenELIS-Global-2
-git checkout modula
+cd OpenELIS-Global-2                  # the core checkout
 bash scripts/setup-workspace.sh       # first time only
-DEV_STACK_IMAGE_TAG=modula scripts/dev-stack up --module=/path/to/openelis-module-specimen-followup
+scripts/dev-stack up --module=/path/to/openelis-module-specimen-followup
 scripts/dev-stack url                 # open this URL, log in as admin / adminADMIN!
 ```
 
@@ -80,19 +80,14 @@ While you work:
 - **Remove the module**: delete `volume/modules/specimen-followup.jar` in the
   core checkout and run `scripts/dev-stack up`. The table stays.
 
-`DEV_STACK_IMAGE_TAG=modula` selects the development images that can load
-modules; `--build` builds them from the core checkout instead.
-
 ## Prod mode: install the JAR in openelis-docker
 
 1. Build the JAR (see [Building](#building)), or download it from the
    `specimen-followup-module` artifact of a CI run. The result is
    `target/specimen-followup-<version>.jar`.
-2. In the [openelis-docker](https://github.com/DIGI-UW/openelis-docker)
-   checkout, run the images that can load modules. Until the module system
-   reaches `develop`, change the `itechuw/openelis-global-2*:develop` image tags
-   in `docker-compose.yml` to `:modula`.
-3. Copy the JAR into `configs/modules/` and restart the webapp:
+2. Copy the JAR into `configs/modules/` of the
+   [openelis-docker](https://github.com/DIGI-UW/openelis-docker) checkout and
+   restart the webapp:
 
    ```bash
    cp target/specimen-followup-1.0.0.jar /path/to/openelis-docker/configs/modules/
@@ -100,9 +95,9 @@ modules; `--build` builds them from the core checkout instead.
    docker compose restart oe.openelis.org
    ```
 
-4. Check the webapp log for `[module:specimen-followup] STARTED`. Admin >
+3. Check the webapp log for `[module:specimen-followup] STARTED`. Admin >
    Modules lists the module and its state.
-5. In Role Management, grant `mod.specimen-followup.view` and
+4. In Role Management, grant `mod.specimen-followup.view` and
    `mod.specimen-followup.manage` to the roles that need them. Results,
    Reception and Validation receive both on first install.
 
@@ -118,7 +113,7 @@ In production the pages come from the JAR; there is no dev server.
 
 The build compiles against the core's artifacts in your local Maven
 repository. `scripts/dev-stack up --module` installs them; without the dev
-stack, install them once per core commit from the core checkout on `modula`:
+stack, install them once per core commit from the core checkout:
 
 ```bash
 mvn -q -f dataexport/pom.xml install -DskipTests -Dmaven.test.skip=true
