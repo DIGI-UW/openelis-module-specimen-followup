@@ -60,6 +60,10 @@ scripts/dev-stack up --module=/path/to/openelis-module-specimen-followup
 scripts/dev-stack url                 # open this URL, log in as admin / adminADMIN!
 ```
 
+Add `--setup light` to run the core without the FHIR server, the Analyzer
+Bridge and the analyzer simulator, which this module does not need:
+`scripts/dev-stack up --setup light --module=/path/to/openelis-module-specimen-followup`.
+
 That one command deploys both halves of the module:
 
 | Half     | What `up --module` does                                                                                                                                                                    |
