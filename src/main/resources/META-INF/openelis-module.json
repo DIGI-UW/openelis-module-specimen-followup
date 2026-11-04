@@ -22,7 +22,7 @@
     "entities": [
       "org.openelisglobal.module.followup.domain.FollowUp"
     ],
-    "liquibase": "liquibase/specimen-followup/changelog.xml"
+    "liquibase": "liquibase/base.xml"
   },
   "permissions": [
     {

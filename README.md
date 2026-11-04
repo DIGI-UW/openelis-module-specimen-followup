@@ -90,7 +90,9 @@ and reload: the shell loads the pages from this server instead of the JAR.
 ```
 pom.xml                                   provided: openelis-module-api, openelis-spi, openelisglobal:classes
 src/main/resources/META-INF/openelis-module.json
+src/main/resources/liquibase/base.xml      the master changelog the manifest names; includes the files below in order
 src/main/resources/liquibase/specimen-followup/changelog.xml
+src/main/resources/liquibase/specimen-followup/002-follow-up-indexes.xml
 src/main/java/org/openelisglobal/module/followup/
   SpecimenFollowUpModule.java             lifecycle (validate, onStart, onUpgrade)
   domain/                                 FollowUp entity, enums with the status rules

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
+
+    <!-- The list page filters by status and sorts by due date; one index serves both. -->
+    <changeSet id="specimen-followup-002-status-due-date-index" author="specimen-followup">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists schemaName="clinlims" tableName="mod_specimen_followup_record" indexName="idx_mod_specimen_followup_status_due"/>
+            </not>
+        </preConditions>
+        <createIndex schemaName="clinlims" tableName="mod_specimen_followup_record" indexName="idx_mod_specimen_followup_status_due">
+            <column name="status"/>
+            <column name="due_date"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

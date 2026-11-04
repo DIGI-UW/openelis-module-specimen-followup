@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
+
+  <!--
+    The module's changelog files in the order they run, as the core's base.xml files list theirs.
+    A file that has run on a site keeps its path: the path is part of every changeset's identity.
+  -->
+  <include relativeToChangelogFile="true" file="specimen-followup/changelog.xml"/>
+  <include relativeToChangelogFile="true" file="specimen-followup/002-follow-up-indexes.xml"/>
+</databaseChangeLog>
