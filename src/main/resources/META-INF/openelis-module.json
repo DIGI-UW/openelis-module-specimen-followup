@@ -7,7 +7,7 @@
   "description": "Tracks follow-up actions (recollection requests, investigations, missing patient information, clinician notifications) on existing patients' specimens, in the module's own table, reusing the core patient, sample and user services.",
   "vendor": {
     "name": "OpenELIS Global",
-    "url": "https://github.com/mozzy11/openelis-module-specimen-followup"
+    "url": "https://github.com/DIGI-UW/openelis-module-specimen-followup"
   },
   "requires": {
     "openelis": ">=3.4.0",
