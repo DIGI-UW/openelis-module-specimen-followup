@@ -139,7 +139,7 @@ the prebuilt pages (`META-INF/resources/modules/specimen-followup/`).
 
 CI (`.github/workflows/ci.yml`) runs the same build on every push and pull
 request against the core named by the `CORE_REPOSITORY` and `CORE_REF`
-repository variables (`DIGI-UW/OpenELIS-Global-2` at `modula` by default) and
+repository variables (`DIGI-UW/OpenELIS-Global-2` at `develop` by default) and
 uploads the JAR as a build artifact.
 
 ## Layout

@@ -14,7 +14,7 @@ on:
 # Repository variables CORE_REPOSITORY and CORE_REF override the source.
 env:
   CORE_REPOSITORY: ${{ vars.CORE_REPOSITORY || 'DIGI-UW/OpenELIS-Global-2' }}
-  CORE_REF: ${{ vars.CORE_REF || 'modula' }}
+  CORE_REF: ${{ vars.CORE_REF || 'develop' }}
 
 jobs:
   build:
