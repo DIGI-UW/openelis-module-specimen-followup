@@ -3,8 +3,15 @@ name: CI
 on:
   push:
     branches: [main]
+    # A version tag (v1.2.0) builds that version and publishes a GitHub release with the JAR.
+    tags: ["v*"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: "Version to build as a draft release, such as 1.2.0 (empty: build only)"
+        required: false
+        default: ""
 
 # The module compiles against the core contracts (openelis-spi,
 # openelis-module-api) and the core's classes (openelisglobal:classes), which
@@ -20,9 +27,32 @@ jobs:
   build:
     name: Build and test the module
     runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Check out the module
         uses: actions/checkout@v4
+
+      - name: Name the release version (tag or manual run)
+        id: version
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.release_version }}
+        run: |
+          version=""
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            version="${GITHUB_REF_NAME#v}"
+          elif [ -n "${INPUT_VERSION}" ]; then
+            version="${INPUT_VERSION#v}"
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          if [ -n "${version}" ]; then
+            manifest=$(python3 -c "import json; print(json.load(open('src/main/resources/META-INF/openelis-module.json'))['version'])")
+            if [ "${manifest}" != "${version}" ]; then
+              echo "::error::The manifest's version is ${manifest}, the release is ${version}. Set \"version\" in src/main/resources/META-INF/openelis-module.json to ${version} first."
+              exit 1
+            fi
+            echo "Releasing version ${version}"
+          fi
 
       - name: Set up Java 21
         uses: actions/setup-java@v4
@@ -69,6 +99,10 @@ jobs:
           mvn -q install -DskipTests -Dmaven.test.skip=true -Dspotless.check.skip=true
           mvn -q -f module-test/pom.xml install -DskipTests
 
+      - name: Set the Maven version for a release
+        if: steps.version.outputs.version != ''
+        run: mvn -B -q versions:set -DnewVersion=${{ steps.version.outputs.version }} -DgenerateBackupPoms=false
+
       - name: Build the module (backend tests, frontend build and tests, JAR)
         run: mvn -B verify
 
@@ -77,3 +111,34 @@ jobs:
         with:
           name: specimen-followup-module
           path: target/specimen-followup-*.jar
+
+  release:
+    name: Publish the release
+    needs: build
+    if: needs.build.outputs.version != ''
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Download the module JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: specimen-followup-module
+          path: dist
+
+      - name: Create the GitHub release with the JAR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          ls -l dist
+          title="Specimen Follow-up ${VERSION}"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            # A pushed tag publishes the release.
+            gh release create "${GITHUB_REF_NAME}" dist/*.jar --repo "${GITHUB_REPOSITORY}" \
+              --title "${title}" --generate-notes
+          else
+            # A manual run makes a draft to check before publishing; it creates the tag on publish.
+            gh release create "v${VERSION}" dist/*.jar --repo "${GITHUB_REPOSITORY}" \
+              --title "${title}" --generate-notes --draft --target "${GITHUB_SHA}"
+          fi

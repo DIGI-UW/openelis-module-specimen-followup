@@ -86,15 +86,14 @@ While you work:
 
 ## Prod mode: install the JAR in openelis-docker
 
-1. Build the JAR (see [Building](#building)), or download it from the
-   `specimen-followup-module` artifact of a CI run. The result is
-   `target/specimen-followup-<version>.jar`.
+1. Get the JAR (see [Getting the JAR](#getting-the-jar)). For production, use
+   the one attached to a [release](https://github.com/DIGI-UW/openelis-module-specimen-followup/releases).
 2. Copy the JAR into `configs/modules/` of the
    [openelis-docker](https://github.com/DIGI-UW/openelis-docker) checkout and
    restart the webapp:
 
    ```bash
-   cp target/specimen-followup-1.0.0.jar /path/to/openelis-docker/configs/modules/
+   cp specimen-followup-1.0.0.jar /path/to/openelis-docker/configs/modules/
    docker compose up -d
    docker compose restart oe.openelis.org
    ```
@@ -112,6 +111,59 @@ In production the pages come from the JAR; there is no dev server.
 | Upgrade | Replace the JAR with the new version (never two versions side by side) and restart the webapp. |
 | Disable | Create `specimen-followup-<version>.jar.disabled` next to the JAR and restart the webapp.      |
 | Remove  | Delete the JAR and restart the webapp. The table and its data stay.                            |
+
+## Getting the JAR
+
+| Source                                                                                                | When it is made                                                                  | Kept         | Use it for                             |
+| ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------ | -------------------------------------- |
+| [Releases](https://github.com/DIGI-UW/openelis-module-specimen-followup/releases)                     | Every published release (see [Making a release](#making-a-release))              | Permanently  | Production installs                    |
+| [CI artifacts](https://github.com/DIGI-UW/openelis-module-specimen-followup/actions/workflows/ci.yml) | Every successful CI run: each push to `main`, each pull request, each manual run | 90 days      | Testing a change before it is released |
+| Your own build                                                                                        | `mvn verify` (see [Building](#building))                                         | Your machine | Development                            |
+
+**From a release:** open the
+[Releases page](https://github.com/DIGI-UW/openelis-module-specimen-followup/releases),
+pick the version, and download `specimen-followup-<version>.jar` under
+**Assets**. From the command line:
+
+```bash
+gh release download v1.0.0 --repo DIGI-UW/openelis-module-specimen-followup --pattern '*.jar'
+```
+
+**From the latest CI run:** open
+[CI runs on main](https://github.com/DIGI-UW/openelis-module-specimen-followup/actions/workflows/ci.yml?query=branch%3Amain+is%3Asuccess),
+click the newest successful run, and download **specimen-followup-module**
+under **Artifacts** at the bottom of the run page. GitHub delivers it as a zip
+that contains the JAR. From the command line:
+
+```bash
+run=$(gh run list --repo DIGI-UW/openelis-module-specimen-followup --workflow ci.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run download "$run" --repo DIGI-UW/openelis-module-specimen-followup --name specimen-followup-module
+```
+
+A CI build of `main` is named `specimen-followup-<version>-SNAPSHOT.jar`; a
+release build drops the `-SNAPSHOT`.
+
+## Making a release
+
+1. Set `"version"` in `src/main/resources/META-INF/openelis-module.json` to the
+   new version, for example `1.1.0`, and merge it into `main`. The core records
+   this version, so the release refuses a tag that does not match it.
+2. Optional: check it first as a draft. Run the
+   [CI workflow](https://github.com/DIGI-UW/openelis-module-specimen-followup/actions/workflows/ci.yml)
+   by hand (**Run workflow**) with **Version to build as a draft release** set
+   to `1.1.0`. It builds and tests that version and creates a draft release
+   `v1.1.0` with the JAR attached, visible only to maintainers. Publish it from
+   the Releases page, or delete it.
+3. Or publish directly by pushing the version tag:
+
+   ```bash
+   git tag v1.1.0
+   git push origin v1.1.0
+   ```
+
+   CI builds and tests `1.1.0`, then publishes the GitHub release `v1.1.0` with
+   `specimen-followup-1.1.0.jar` attached and release notes generated from the
+   merged pull requests.
 
 ## Building
 
@@ -139,8 +191,10 @@ the prebuilt pages (`META-INF/resources/modules/specimen-followup/`).
 
 CI (`.github/workflows/ci.yml`) runs the same build on every push and pull
 request against the core named by the `CORE_REPOSITORY` and `CORE_REF`
-repository variables (`DIGI-UW/OpenELIS-Global-2` at `develop` by default) and
-uploads the JAR as a build artifact.
+repository variables (`DIGI-UW/OpenELIS-Global-2` at `develop` by default),
+uploads the JAR as the `specimen-followup-module` artifact of the run, and, for
+a version tag or a manual run with a version, attaches it to a GitHub release
+(see [Making a release](#making-a-release)).
 
 ## Layout
 
