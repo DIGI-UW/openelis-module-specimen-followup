@@ -72,13 +72,8 @@ jobs:
         id: core
         run: echo "sha=$(git -C core rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Cache the installed core artifacts
-        id: core-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository/org/openelisglobal
-          key: core-artifacts-${{ steps.core.outputs.sha }}
-
+      # Restored before the core artifacts: an older cache can still carry an old copy of the
+      # core artifacts, and the core commit's own copy must be the one that wins.
       - name: Cache the other Maven dependencies
         uses: actions/cache@v4
         with:
@@ -87,6 +82,13 @@ jobs:
             !~/.m2/repository/org/openelisglobal
           key: maven-${{ hashFiles('pom.xml', 'core/pom.xml', 'core/module-contracts/**/pom.xml') }}
           restore-keys: maven-
+
+      - name: Cache the installed core artifacts
+        id: core-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/openelisglobal
+          key: core-artifacts-${{ steps.core.outputs.sha }}
 
       - name: Install the core contracts and classes
         if: steps.core-cache.outputs.cache-hit != 'true'
