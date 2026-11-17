@@ -1,9 +1,15 @@
 import React from "react";
 import { Button, Tile } from "@carbon/react";
 import { FormattedMessage } from "react-intl";
+import type { ShownPatient } from "../followUpApi";
+
+interface PatientCardProps {
+  patient: ShownPatient | null | undefined;
+  onClear?: () => void;
+}
 
 /** The selected (or referenced) patient, as the core returned it, with an optional "change" action. */
-export default function PatientCard({ patient, onClear }) {
+export default function PatientCard({ patient, onClear }: PatientCardProps) {
   if (!patient) {
     return null;
   }

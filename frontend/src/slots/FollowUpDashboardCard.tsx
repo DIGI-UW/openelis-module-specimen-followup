@@ -4,10 +4,7 @@ import { useHistory } from "react-router-dom";
 import { useIntl } from "react-intl";
 import { useOpenElisApi } from "openelis_core/sdk";
 import { ROUTES, endpoints } from "../followUpApi";
-
-interface FollowUpPage {
-  total?: number;
-}
+import type { FollowUpPage } from "../followUpApi";
 
 /**
  * The module's contribution to the core home dashboard's `home.dashboard.cards`
@@ -24,7 +21,7 @@ export default function FollowUpDashboardCard() {
     let cancelled = false;
     api
       .get<FollowUpPage>(
-        endpoints.followUps({ status: "OPEN", page: 1, size: 1 }),
+        endpoints.followUps({ status: "OPEN", page: 0, size: 1 }),
       )
       .then((page) => {
         if (!cancelled) {

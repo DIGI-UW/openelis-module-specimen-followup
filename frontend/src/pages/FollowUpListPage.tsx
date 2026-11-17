@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import {
@@ -37,17 +38,37 @@ import {
   siteDateFormat,
   STATUSES,
 } from "../followUpApi";
+import type {
+  FieldChange,
+  FollowUpOptions,
+  FollowUpPage,
+} from "../followUpApi";
 
-const STATUS_TAG = {
+type TagType = "blue" | "teal" | "green" | "gray" | "cyan" | "red";
+
+const STATUS_TAG: Record<string, TagType> = {
   OPEN: "blue",
   IN_PROGRESS: "teal",
   COMPLETED: "green",
   CANCELLED: "gray",
 };
 
-const PRIORITY_TAG = { LOW: "gray", NORMAL: "cyan", HIGH: "red" };
+const PRIORITY_TAG: Record<string, TagType> = {
+  LOW: "gray",
+  NORMAL: "cyan",
+  HIGH: "red",
+};
 
-const EMPTY_FILTERS = {
+interface ListFilters {
+  followUpNumber: string;
+  patientId: string;
+  accessionNumber: string;
+  actionType: string;
+  priority: string;
+  status: string;
+}
+
+const EMPTY_FILTERS: ListFilters = {
   followUpNumber: "",
   patientId: "",
   accessionNumber: "",
@@ -68,21 +89,21 @@ export default function FollowUpListPage() {
   const api = useOpenElisApi();
   const canManage = usePermission("mod.specimen-followup.manage");
   const location = useLocation();
-  const [initialFilters] = useState(() => {
+  const [initialFilters] = useState<ListFilters>(() => {
     const status = new URLSearchParams(location.search).get("status");
     return status ? { ...EMPTY_FILTERS, status } : EMPTY_FILTERS;
   });
-  const [filters, setFilters] = useState(initialFilters);
-  const [applied, setApplied] = useState(initialFilters);
+  const [filters, setFilters] = useState<ListFilters>(initialFilters);
+  const [applied, setApplied] = useState<ListFilters>(initialFilters);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(20);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<FollowUpPage | null>(null);
   const [error, setError] = useState(false);
-  const [options, setOptions] = useState({ actionTypes: [] });
+  const [options, setOptions] = useState<FollowUpOptions>({ actionTypes: [] });
 
   useEffect(() => {
     api
-      .get(endpoints.options)
+      .get<FollowUpOptions>(endpoints.options)
       .then(setOptions)
       .catch(() => setOptions({ actionTypes: [] }));
   }, [api]);
@@ -90,7 +111,7 @@ export default function FollowUpListPage() {
   const load = useCallback(() => {
     setError(false);
     api
-      .get(endpoints.followUps({ ...applied, page, size }))
+      .get<FollowUpPage>(endpoints.followUps({ ...applied, page, size }))
       .then((body) => setResult(body))
       .catch(() => {
         setResult({ items: [], total: 0, page: 0, size });
@@ -172,12 +193,15 @@ export default function FollowUpListPage() {
     dueDate: isoToSiteDate(item.dueDate, dateFormat),
   }));
 
-  const setFilter = (field) => (event) => {
-    const value = event && event.target ? event.target.value : event;
+  const setFilter = (field: keyof ListFilters) => (event: FieldChange) => {
+    const value =
+      event && (event as ChangeEvent<HTMLInputElement>).target
+        ? (event as ChangeEvent<HTMLInputElement>).target.value
+        : (event as string);
     setFilters((current) => ({ ...current, [field]: value }));
   };
 
-  const search = (event) => {
+  const search = (event?: FormEvent) => {
     if (event) {
       event.preventDefault();
     }

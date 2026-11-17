@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import type { ChangeEvent } from "react";
 import { useHistory } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import {
@@ -24,6 +25,7 @@ import {
   TextArea,
 } from "@carbon/react";
 import { PageBreadCrumb, SearchPatientForm } from "openelis_core/components";
+import type { PatientRecord } from "openelis_core/components";
 import {
   useConfigurationProperties,
   useModuleConfig,
@@ -47,9 +49,21 @@ import {
   siteDateToIso,
   todayPlusDays,
 } from "../followUpApi";
+import type {
+  FieldChange,
+  FieldErrors,
+  FollowUp,
+  FollowUpForm,
+  FollowUpOptions,
+  FollowUpRequest,
+  PatientSpecimens,
+  ShownPatient,
+  SpecimenSummary,
+  UserSummary,
+} from "../followUpApi";
 import PatientCard from "../components/PatientCard";
 
-const EMPTY_FORM = {
+const EMPTY_FORM: FollowUpForm = {
   actionType: "",
   description: "",
   priority: "NORMAL",
@@ -69,24 +83,24 @@ export default function CreateFollowUpPage() {
   const api = useOpenElisApi();
   const config = useModuleConfig("specimen-followup");
   const dateFormat = siteDateFormat(useConfigurationProperties());
-  const notifications = useNotifications();
-  const [patient, setPatient] = useState(null);
-  const [specimens, setSpecimens] = useState(null);
+  const notifications = useNotifications()!;
+  const [patient, setPatient] = useState<ShownPatient | null>(null);
+  const [specimens, setSpecimens] = useState<SpecimenSummary[] | null>(null);
   const [specimensError, setSpecimensError] = useState(false);
   const [selectedSampleId, setSelectedSampleId] = useState("");
-  const [options, setOptions] = useState({ actionTypes: [] });
-  const [users, setUsers] = useState([]);
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [errors, setErrors] = useState({});
+  const [options, setOptions] = useState<FollowUpOptions>({ actionTypes: [] });
+  const [users, setUsers] = useState<UserSummary[]>([]);
+  const [form, setForm] = useState<FollowUpForm>(EMPTY_FORM);
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     api
-      .get(endpoints.options)
+      .get<FollowUpOptions>(endpoints.options)
       .then(setOptions)
       .catch(() => setOptions({ actionTypes: [] }));
     api
-      .get(endpoints.users)
+      .get<UserSummary[]>(endpoints.users)
       .then(setUsers)
       .catch(() => setUsers([]));
   }, [api]);
@@ -101,18 +115,18 @@ export default function CreateFollowUpPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config && config.defaultDueDays]);
 
-  const selectPatient = (selected) => {
+  const selectPatient = (selected: PatientRecord) => {
     const id =
       selected && (selected.patientPK || selected.patientId || selected.id);
     if (!id) {
       return;
     }
-    setPatient({ ...selected, patientId: String(id) });
+    setPatient({ ...selected, patientId: String(id) } as ShownPatient);
     setSpecimens(null);
     setSpecimensError(false);
     setSelectedSampleId("");
     api
-      .get(endpoints.specimensOfPatient(id))
+      .get<PatientSpecimens>(endpoints.specimensOfPatient(id))
       .then((body) => setSpecimens(body.specimens || []))
       .catch(() => {
         setSpecimens([]);
@@ -126,14 +140,17 @@ export default function CreateFollowUpPage() {
     setSelectedSampleId("");
   };
 
-  const update = (field) => (event) => {
-    const value = event && event.target ? event.target.value : event;
+  const update = (field: keyof FollowUpForm) => (event: FieldChange) => {
+    const value =
+      event && (event as ChangeEvent<HTMLInputElement>).target
+        ? (event as ChangeEvent<HTMLInputElement>).target.value
+        : (event as string);
     setForm((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
   };
 
   const validate = () => {
-    const found = {};
+    const found: FieldErrors = {};
     if (!patient) {
       found.patientId = intl.formatMessage({
         id: "mod.specimen-followup.create.patientRequired",
@@ -168,8 +185,8 @@ export default function CreateFollowUpPage() {
       return;
     }
     setSaving(true);
-    const payload = {
-      patientId: patient.patientId,
+    const payload: FollowUpRequest = {
+      patientId: patient!.patientId,
       sampleId: selectedSampleId,
       actionType: form.actionType,
       description: form.description.trim(),
@@ -178,7 +195,7 @@ export default function CreateFollowUpPage() {
       dueDate: form.dueDate || null,
       notes: form.notes.trim() || null,
     };
-    const response = await api.post(endpoints.followUps(), payload);
+    const response = await api.post<FollowUp>(endpoints.followUps(), payload);
     setSaving(false);
     if (isRefusal(response)) {
       setErrors(fieldErrorsOf(response));
@@ -433,7 +450,7 @@ export default function CreateFollowUpPage() {
                 }
                 name="followup-priority"
                 valueSelected={form.priority}
-                onChange={(value) => update("priority")(value)}
+                onChange={(value) => update("priority")(value as string)}
                 invalid={Boolean(errors.priority)}
                 invalidText={errors.priority}
               >
