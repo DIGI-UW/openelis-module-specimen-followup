@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  actionTypeLabel,
   isoToSiteDate,
   localIsoDate,
   siteDateFormat,
@@ -33,5 +34,24 @@ describe("due dates", () => {
     expect(localIsoDate(date)).toBe("2026-11-07");
     expect(todayPlusDays(0)).toBe(localIsoDate(new Date()));
     expect(todayPlusDays("x")).toBe(localIsoDate(new Date()));
+  });
+});
+
+describe("action types", () => {
+  const intl = {
+    messages: { "mod.specimen-followup.actionType.OTHER": "Autre" },
+    formatMessage: ({ id }) => `t:${id}`,
+  };
+
+  it("uses the module's message for the type when the active bundle has one", () => {
+    expect(actionTypeLabel(intl, "OTHER", "Other")).toBe(
+      "t:mod.specimen-followup.actionType.OTHER",
+    );
+  });
+
+  it("falls back to the label the API sent, then to the value", () => {
+    expect(actionTypeLabel(intl, "NEW_TYPE", "A new type")).toBe("A new type");
+    expect(actionTypeLabel(intl, "NEW_TYPE", undefined)).toBe("NEW_TYPE");
+    expect(actionTypeLabel(undefined, undefined, undefined)).toBe("");
   });
 });

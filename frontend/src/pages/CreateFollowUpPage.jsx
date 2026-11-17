@@ -37,6 +37,7 @@ import {
 } from "openelis_core/components";
 import {
   ROUTES,
+  actionTypeLabel,
   endpoints,
   fieldErrorsOf,
   isRefusal,
@@ -418,7 +419,7 @@ export default function CreateFollowUpPage() {
                   <SelectItem
                     key={type.value}
                     value={type.value}
-                    text={type.label}
+                    text={actionTypeLabel(intl, type.value, type.label)}
                   />
                 ))}
               </Select>
