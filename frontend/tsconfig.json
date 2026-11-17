@@ -1,4 +1,10 @@
 {
   "extends": "@openelis/module-sdk/tsconfig.base.json",
-  "include": ["src", "vite.config.js"]
+  "compilerOptions": {
+    "noImplicitAny": true
+  },
+  "include": [
+    "src",
+    "vite.config.ts"
+  ]
 }

@@ -8,7 +8,7 @@ import {
   resetSdkStubs,
 } from "@openelis/module-sdk/testing/sdk.jsx";
 import FollowUpDetailPage from "./FollowUpDetailPage";
-import { renderPage } from "../test/renderPage";
+import { byId, renderPage } from "../test/renderPage";
 
 const API = "/rest/modules/specimen-followup";
 const ONE = `${API}/followups/7`;
@@ -113,17 +113,13 @@ describe("FollowUpDetailPage", () => {
     open();
     await screen.findByTestId("followup-detail-title");
 
-    expect(document.getElementById("followup-edit")).toHaveTextContent("Edit");
-    expect(
-      document.getElementById("followup-status-IN_PROGRESS"),
-    ).toHaveTextContent("Start work");
-    expect(
-      document.getElementById("followup-status-CANCELLED"),
-    ).toHaveTextContent("Cancel follow-up");
-    expect(document.getElementById("followup-status-COMPLETED")).toBeNull();
-    expect(document.getElementById("followup-delete")).toHaveTextContent(
-      "Delete",
+    expect(byId("followup-edit")).toHaveTextContent("Edit");
+    expect(byId("followup-status-IN_PROGRESS")).toHaveTextContent("Start work");
+    expect(byId("followup-status-CANCELLED")).toHaveTextContent(
+      "Cancel follow-up",
     );
+    expect(byId("followup-status-COMPLETED")).toBeNull();
+    expect(byId("followup-delete")).toHaveTextContent("Delete");
   });
 
   it("keeps a completed follow-up read-only", async () => {
@@ -137,12 +133,12 @@ describe("FollowUpDetailPage", () => {
       "Completed",
     );
 
-    expect(document.getElementById("followup-edit")).toBeNull();
-    expect(document.getElementById("followup-delete")).toBeNull();
+    expect(byId("followup-edit")).toBeNull();
+    expect(byId("followup-delete")).toBeNull();
     expect(
       screen.queryByRole("button", { name: /Start work|Reopen/ }),
     ).toBeNull();
-    expect(document.getElementById("followup-back")).toBeInTheDocument();
+    expect(byId("followup-back")).toBeInTheDocument();
   });
 
   it("shows a viewer no actions and reads no form lists", async () => {
@@ -150,9 +146,9 @@ describe("FollowUpDetailPage", () => {
     open();
     await screen.findByTestId("followup-detail-title");
 
-    expect(document.getElementById("followup-edit")).toBeNull();
-    expect(document.getElementById("followup-status-IN_PROGRESS")).toBeNull();
-    expect(document.getElementById("followup-delete")).toBeNull();
+    expect(byId("followup-edit")).toBeNull();
+    expect(byId("followup-status-IN_PROGRESS")).toBeNull();
+    expect(byId("followup-delete")).toBeNull();
     expect(apiCalls.map((call) => call.endpoint)).toEqual([ONE]);
   });
 
@@ -180,28 +176,24 @@ describe("FollowUpDetailPage", () => {
     const { notifications } = open();
     await screen.findByTestId("followup-detail-title");
 
-    fireEvent.click(document.getElementById("followup-edit"));
-    expect(document.getElementById("edit-action-type")).toHaveValue(
-      "INVESTIGATION",
-    );
-    expect(document.getElementById("edit-priority-HIGH")).toBeChecked();
-    expect(document.getElementById("edit-description")).toHaveValue(
-      "Specimen clarity to check",
-    );
-    expect(document.getElementById("edit-assignee")).toHaveValue("1");
-    expect(document.getElementById("edit-due-date")).toHaveValue("11/20/2026");
+    fireEvent.click(byId("followup-edit"));
+    expect(byId("edit-action-type")).toHaveValue("INVESTIGATION");
+    expect(byId("edit-priority-HIGH")).toBeChecked();
+    expect(byId("edit-description")).toHaveValue("Specimen clarity to check");
+    expect(byId("edit-assignee")).toHaveValue("1");
+    expect(byId("edit-due-date")).toHaveValue("11/20/2026");
 
-    fireEvent.change(document.getElementById("edit-action-type"), {
+    fireEvent.change(byId("edit-action-type"), {
       target: { value: "OTHER" },
     });
-    fireEvent.click(document.getElementById("edit-priority-LOW"));
-    fireEvent.change(document.getElementById("edit-description"), {
+    fireEvent.click(byId("edit-priority-LOW"));
+    fireEvent.change(byId("edit-description"), {
       target: { value: " Edited " },
     });
-    fireEvent.change(document.getElementById("edit-assignee"), {
+    fireEvent.change(byId("edit-assignee"), {
       target: { value: "" },
     });
-    fireEvent.click(document.getElementById("followup-save-edit"));
+    fireEvent.click(byId("followup-save-edit"));
 
     await waitFor(() =>
       expect(screen.getByTestId("followup-action-type")).toHaveTextContent(
@@ -234,11 +226,11 @@ describe("FollowUpDetailPage", () => {
     open();
     await screen.findByTestId("followup-detail-title");
 
-    fireEvent.click(document.getElementById("followup-edit"));
-    fireEvent.change(document.getElementById("edit-description"), {
+    fireEvent.click(byId("followup-edit"));
+    fireEvent.change(byId("edit-description"), {
       target: { value: "   " },
     });
-    fireEvent.click(document.getElementById("followup-save-edit"));
+    fireEvent.click(byId("followup-save-edit"));
 
     expect(await screen.findByText("Required")).toBeInTheDocument();
     expect(writes()).toEqual([]);
@@ -253,7 +245,7 @@ describe("FollowUpDetailPage", () => {
     const { notifications } = open();
     await screen.findByTestId("followup-detail-title");
 
-    fireEvent.click(document.getElementById("followup-status-IN_PROGRESS"));
+    fireEvent.click(byId("followup-status-IN_PROGRESS"));
     const dialog = screen.getByTestId("followup-status-modal");
     expect(dialog).toHaveTextContent("Start work");
     fireEvent.change(within(dialog).getByLabelText("Note (optional)"), {
@@ -273,13 +265,11 @@ describe("FollowUpDetailPage", () => {
         body: { status: "IN_PROGRESS", note: "starting" },
       },
     ]);
-    expect(document.getElementById("followup-status-OPEN")).toHaveTextContent(
-      "Reopen",
+    expect(byId("followup-status-OPEN")).toHaveTextContent("Reopen");
+    expect(byId("followup-status-COMPLETED")).toHaveTextContent(
+      "Mark completed",
     );
-    expect(
-      document.getElementById("followup-status-COMPLETED"),
-    ).toHaveTextContent("Mark completed");
-    expect(document.getElementById("followup-delete")).toBeNull();
+    expect(byId("followup-delete")).toBeNull();
     expect(notifications).toEqual([
       { kind: "success", title: "Status updated", message: "" },
     ]);
@@ -293,7 +283,7 @@ describe("FollowUpDetailPage", () => {
     const { notifications } = open();
     await screen.findByTestId("followup-detail-title");
 
-    fireEvent.click(document.getElementById("followup-status-CANCELLED"));
+    fireEvent.click(byId("followup-status-CANCELLED"));
     fireEvent.click(
       within(screen.getByTestId("followup-status-modal")).getByRole("button", {
         name: "Confirm",
@@ -318,7 +308,7 @@ describe("FollowUpDetailPage", () => {
     const { notifications, location } = open();
     await screen.findByTestId("followup-detail-title");
 
-    fireEvent.click(document.getElementById("followup-delete"));
+    fireEvent.click(byId("followup-delete"));
     const dialog = screen.getByTestId("followup-delete-modal");
     expect(dialog).toHaveTextContent(
       "Follow-up FU-000007 is still open and will be removed.",
@@ -326,7 +316,7 @@ describe("FollowUpDetailPage", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: "Delete" }));
 
     await waitFor(() =>
-      expect(location.current.pathname).toBe("/m/specimen-followup/followups"),
+      expect(location.current?.pathname).toBe("/m/specimen-followup/followups"),
     );
     expect(writes()).toEqual([
       { method: "DELETE", endpoint: ONE, body: undefined },
@@ -348,7 +338,7 @@ describe("FollowUpDetailPage", () => {
     const { notifications, location } = open();
     await screen.findByTestId("followup-detail-title");
 
-    fireEvent.click(document.getElementById("followup-delete"));
+    fireEvent.click(byId("followup-delete"));
     fireEvent.click(
       within(screen.getByTestId("followup-delete-modal")).getByRole("button", {
         name: "Delete",
@@ -361,7 +351,7 @@ describe("FollowUpDetailPage", () => {
       ]),
     );
     expect(deletes).toBe(1);
-    expect(location.current.pathname).toBe(URL);
+    expect(location.current?.pathname).toBe(URL);
     await waitFor(() =>
       expect(
         apiCalls.filter(
@@ -381,8 +371,6 @@ describe("FollowUpDetailPage", () => {
       "Examiner un problème d'échantillon",
     );
     expect(screen.getByTestId("followup-priority")).toHaveTextContent("Haute");
-    expect(
-      document.getElementById("followup-status-IN_PROGRESS"),
-    ).toHaveTextContent("Commencer");
+    expect(byId("followup-status-IN_PROGRESS")).toHaveTextContent("Commencer");
   });
 });

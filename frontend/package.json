@@ -8,8 +8,8 @@
     "build": "vite build",
     "dev": "vite",
     "test": "vitest run",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json}\" vite.config.js",
-    "check-format": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json}\" vite.config.js",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json}\" vite.config.ts",
+    "check-format": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json}\" vite.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
@@ -22,6 +22,7 @@
     "@testing-library/react": "^12.1.5",
     "@types/react": "^17.0.89",
     "@types/react-dom": "^17.0.26",
+    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^6.0.1",
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",

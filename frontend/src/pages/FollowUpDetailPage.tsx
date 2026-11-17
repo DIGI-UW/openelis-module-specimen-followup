@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import type { ChangeEvent, ReactNode } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { FormattedMessage, useIntl } from "react-intl";
 import {
@@ -26,6 +27,7 @@ import {
   CustomDatePicker,
   NotificationKinds,
 } from "openelis_core/components";
+import type { NotificationKind } from "openelis_core/components";
 import {
   useConfigurationProperties,
   useNotifications,
@@ -43,9 +45,18 @@ import {
   siteDateFormat,
   siteDateToIso,
 } from "../followUpApi";
+import type {
+  FieldChange,
+  FieldErrors,
+  FollowUp,
+  FollowUpForm,
+  FollowUpOptions,
+  Status,
+  UserSummary,
+} from "../followUpApi";
 import PatientCard from "../components/PatientCard";
 
-const STATUS_TAG = {
+const STATUS_TAG: Record<string, "blue" | "teal" | "green" | "gray"> = {
   OPEN: "blue",
   IN_PROGRESS: "teal",
   COMPLETED: "green",
@@ -60,26 +71,26 @@ const STATUS_TAG = {
 export default function FollowUpDetailPage() {
   const intl = useIntl();
   const history = useHistory();
-  const { followUpId } = useParams();
+  const { followUpId } = useParams<{ followUpId: string }>();
   const api = useOpenElisApi();
-  const notifications = useNotifications();
+  const notifications = useNotifications()!;
   const canManage = usePermission("mod.specimen-followup.manage");
   const dateFormat = siteDateFormat(useConfigurationProperties());
-  const [followUp, setFollowUp] = useState(null);
+  const [followUp, setFollowUp] = useState<FollowUp | null>(null);
   const [missing, setMissing] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState(null);
-  const [errors, setErrors] = useState({});
-  const [options, setOptions] = useState({ actionTypes: [] });
-  const [users, setUsers] = useState([]);
-  const [statusTarget, setStatusTarget] = useState(null);
+  const [form, setForm] = useState<FollowUpForm | null>(null);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [options, setOptions] = useState<FollowUpOptions>({ actionTypes: [] });
+  const [users, setUsers] = useState<UserSummary[]>([]);
+  const [statusTarget, setStatusTarget] = useState<Status | null>(null);
   const [statusNote, setStatusNote] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(() => {
     api
-      .get(endpoints.followUp(followUpId))
+      .get<FollowUp>(endpoints.followUp(followUpId))
       .then((body) => {
         setFollowUp(body);
         setMissing(false);
@@ -96,16 +107,20 @@ export default function FollowUpDetailPage() {
       return;
     }
     api
-      .get(endpoints.options)
+      .get<FollowUpOptions>(endpoints.options)
       .then(setOptions)
       .catch(() => setOptions({ actionTypes: [] }));
     api
-      .get(endpoints.users)
+      .get<UserSummary[]>(endpoints.users)
       .then(setUsers)
       .catch(() => setUsers([]));
   }, [api, canManage]);
 
-  const notify = (kind, titleId, message) => {
+  const notify = (
+    kind: NotificationKind,
+    titleId: string,
+    message?: string | null,
+  ) => {
     notifications.addNotification({
       kind,
       title: intl.formatMessage({ id: titleId }),
@@ -116,31 +131,34 @@ export default function FollowUpDetailPage() {
 
   const startEditing = () => {
     setForm({
-      actionType: followUp.actionType || "",
-      description: followUp.description || "",
-      priority: followUp.priority || "NORMAL",
-      assignedUserId: followUp.assignedUserId || "",
-      dueDate: followUp.dueDate || "",
-      notes: followUp.notes || "",
+      actionType: followUp!.actionType || "",
+      description: followUp!.description || "",
+      priority: followUp!.priority || "NORMAL",
+      assignedUserId: followUp!.assignedUserId || "",
+      dueDate: followUp!.dueDate || "",
+      notes: followUp!.notes || "",
     });
     setErrors({});
     setEditing(true);
   };
 
-  const update = (field) => (event) => {
-    const value = event && event.target ? event.target.value : event;
-    setForm((current) => ({ ...current, [field]: value }));
+  const update = (field: keyof FollowUpForm) => (event: FieldChange) => {
+    const value =
+      event && (event as ChangeEvent<HTMLInputElement>).target
+        ? (event as ChangeEvent<HTMLInputElement>).target.value
+        : (event as string);
+    setForm((current) => ({ ...current!, [field]: value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
   };
 
   const saveEdit = async () => {
-    const found = {};
-    if (!form.actionType) {
+    const found: FieldErrors = {};
+    if (!form!.actionType) {
       found.actionType = intl.formatMessage({
         id: "mod.specimen-followup.form.required",
       });
     }
-    if (!form.description.trim()) {
+    if (!form!.description.trim()) {
       found.description = intl.formatMessage({
         id: "mod.specimen-followup.form.required",
       });
@@ -150,15 +168,15 @@ export default function FollowUpDetailPage() {
       return;
     }
     setBusy(true);
-    const response = await api.put(endpoints.followUp(followUp.id), {
-      patientId: followUp.patientId,
-      sampleId: followUp.sampleId,
-      actionType: form.actionType,
-      description: form.description.trim(),
-      priority: form.priority,
-      assignedUserId: form.assignedUserId || null,
-      dueDate: form.dueDate || null,
-      notes: form.notes.trim() || null,
+    const response = await api.put<FollowUp>(endpoints.followUp(followUp!.id), {
+      patientId: followUp!.patientId,
+      sampleId: followUp!.sampleId,
+      actionType: form!.actionType,
+      description: form!.description.trim(),
+      priority: form!.priority,
+      assignedUserId: form!.assignedUserId || null,
+      dueDate: form!.dueDate || null,
+      notes: form!.notes.trim() || null,
     });
     setBusy(false);
     if (isRefusal(response)) {
@@ -177,7 +195,7 @@ export default function FollowUpDetailPage() {
 
   const changeStatus = async () => {
     setBusy(true);
-    const response = await api.put(endpoints.status(followUp.id), {
+    const response = await api.put<FollowUp>(endpoints.status(followUp!.id), {
       status: statusTarget,
       note: statusNote.trim(),
     });
@@ -202,7 +220,7 @@ export default function FollowUpDetailPage() {
 
   const remove = async () => {
     setBusy(true);
-    const status = await api.del(endpoints.followUp(followUp.id));
+    const status = await api.del(endpoints.followUp(followUp!.id));
     setBusy(false);
     setConfirmDelete(false);
     if (status !== 204 && status !== 200) {
@@ -237,7 +255,7 @@ export default function FollowUpDetailPage() {
     return <Loading withOverlay={false} />;
   }
 
-  const row = (labelId, value, testId) => (
+  const row = (labelId: string, value: ReactNode, testId: string) => (
     <StructuredListRow key={labelId}>
       <StructuredListCell noWrap>
         <FormattedMessage id={labelId} />
@@ -416,7 +434,7 @@ export default function FollowUpDetailPage() {
                   }
                   name="edit-priority"
                   valueSelected={form.priority}
-                  onChange={(value) => update("priority")(value)}
+                  onChange={(value) => update("priority")(value as string)}
                 >
                   {PRIORITIES.map((priority) => (
                     <RadioButton

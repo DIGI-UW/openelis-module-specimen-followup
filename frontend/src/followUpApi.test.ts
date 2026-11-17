@@ -1,3 +1,4 @@
+import type { IntlShape } from "react-intl";
 import { describe, expect, it } from "vitest";
 import {
   actionTypeLabel,
@@ -40,8 +41,8 @@ describe("due dates", () => {
 describe("action types", () => {
   const intl = {
     messages: { "mod.specimen-followup.actionType.OTHER": "Autre" },
-    formatMessage: ({ id }) => `t:${id}`,
-  };
+    formatMessage: ({ id }: { id: string }) => `t:${id}`,
+  } as unknown as IntlShape;
 
   it("uses the module's message for the type when the active bundle has one", () => {
     expect(actionTypeLabel(intl, "OTHER", "Other")).toBe(

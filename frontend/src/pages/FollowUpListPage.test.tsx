@@ -8,7 +8,7 @@ import {
   resetSdkStubs,
 } from "@openelis/module-sdk/testing/sdk.jsx";
 import FollowUpListPage from "./FollowUpListPage";
-import { renderPage } from "../test/renderPage";
+import { byId, optionsOf, renderPage } from "../test/renderPage";
 
 const LIST = "/rest/modules/specimen-followup/followups";
 const OPTIONS = "/rest/modules/specimen-followup/options";
@@ -73,9 +73,7 @@ describe("FollowUpListPage", () => {
     renderPage(<FollowUpListPage />);
 
     await screen.findByTestId("followup-row-7");
-    const options = Array.from(
-      document.getElementById("filter-type").options,
-    ).map((option) => [option.value, option.textContent]);
+    const options = optionsOf("filter-type");
     expect(options).toEqual([
       ["", "Any"],
       ["RECOLLECTION", "Request specimen recollection"],
@@ -91,33 +89,33 @@ describe("FollowUpListPage", () => {
     renderPage(<FollowUpListPage />);
     await screen.findByTestId("followup-row-7");
 
-    fireEvent.change(document.getElementById("filter-number"), {
+    fireEvent.change(byId("filter-number"), {
       target: { value: "FU-000007" },
     });
-    fireEvent.change(document.getElementById("filter-type"), {
+    fireEvent.change(byId("filter-type"), {
       target: { value: "INVESTIGATION" },
     });
-    fireEvent.change(document.getElementById("filter-priority"), {
+    fireEvent.change(byId("filter-priority"), {
       target: { value: "HIGH" },
     });
-    fireEvent.change(document.getElementById("filter-status"), {
+    fireEvent.change(byId("filter-status"), {
       target: { value: "IN_PROGRESS" },
     });
-    fireEvent.click(document.getElementById("followup-search"));
+    fireEvent.click(byId("followup-search"));
     await waitFor(() =>
       expect(listCalls()).toContain(
         `${LIST}?followUpNumber=FU-000007&actionType=INVESTIGATION&priority=HIGH&status=IN_PROGRESS&page=0&size=20`,
       ),
     );
 
-    fireEvent.click(document.getElementById("followup-reset"));
+    fireEvent.click(byId("followup-reset"));
     await waitFor(() =>
       expect(listCalls()[listCalls().length - 1]).toBe(
         `${LIST}?page=0&size=20`,
       ),
     );
-    expect(document.getElementById("filter-number")).toHaveValue("");
-    expect(document.getElementById("filter-status")).toHaveValue("");
+    expect(byId("filter-number")).toHaveValue("");
+    expect(byId("filter-status")).toHaveValue("");
   });
 
   it("starts filtered by the status the dashboard card links with", async () => {
@@ -135,7 +133,7 @@ describe("FollowUpListPage", () => {
       "No follow-ups match.",
     );
     expect(listCalls()).toEqual([`${LIST}?status=OPEN&page=0&size=20`]);
-    expect(document.getElementById("filter-status")).toHaveValue("OPEN");
+    expect(byId("filter-status")).toHaveValue("OPEN");
   });
 
   it("asks the API for the page size the pager selects", async () => {
@@ -160,8 +158,8 @@ describe("FollowUpListPage", () => {
     const { location } = renderPage(<FollowUpListPage />);
     await screen.findByTestId("followup-row-7");
 
-    fireEvent.click(document.getElementById("followup-new"));
-    expect(location.current.pathname).toBe("/m/specimen-followup/create");
+    fireEvent.click(byId("followup-new"));
+    expect(location.current?.pathname).toBe("/m/specimen-followup/create");
   });
 
   it("hides create from a user without the manage key", async () => {
@@ -169,7 +167,7 @@ describe("FollowUpListPage", () => {
     renderPage(<FollowUpListPage />);
     await screen.findByTestId("followup-row-7");
 
-    expect(document.getElementById("followup-new")).toBeNull();
+    expect(byId("followup-new")).toBeNull();
   });
 
   it("says so when the list cannot be read", async () => {

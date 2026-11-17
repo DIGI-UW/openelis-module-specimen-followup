@@ -7,5 +7,5 @@ import { openelisModule } from "@openelis/module-sdk/build";
  * manifest through the module SDK (docs/modules.md in the core repository).
  */
 export default openelisModule({
-  test: { setupFiles: ["./src/setupTests.js"] },
+  test: { setupFiles: ["./src/setupTests.ts"] },
 });

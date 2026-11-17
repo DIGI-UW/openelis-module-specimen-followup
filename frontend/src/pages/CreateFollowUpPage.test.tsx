@@ -10,7 +10,7 @@ import {
 import { testPatients } from "@openelis/module-sdk/testing/components.jsx";
 import CreateFollowUpPage from "./CreateFollowUpPage";
 import { isoToSiteDate, todayPlusDays } from "../followUpApi";
-import { renderPage } from "../test/renderPage";
+import { byId, optionsOf, renderPage } from "../test/renderPage";
 
 const API = "/rest/modules/specimen-followup";
 
@@ -107,21 +107,17 @@ describe("CreateFollowUpPage", () => {
     renderPage(<CreateFollowUpPage />);
     await pickPatientAndSpecimen();
 
-    expect(document.getElementById("followup-due-date")).toHaveValue(
+    expect(byId("followup-due-date")).toHaveValue(
       isoToSiteDate(todayPlusDays(3), "MM/dd/yyyy"),
     );
-    expect(document.getElementById("followup-priority-NORMAL")).toBeChecked();
-    const types = Array.from(
-      document.getElementById("followup-action-type").options,
-    ).map((option) => option.textContent);
+    expect(byId("followup-priority-NORMAL")).toBeChecked();
+    const types = optionsOf("followup-action-type").map(([, text]) => text);
     expect(types).toEqual([
       "Choose...",
       "Request specimen recollection",
       "Other",
     ]);
-    const assignees = Array.from(
-      document.getElementById("followup-assignee").options,
-    ).map((option) => option.textContent);
+    const assignees = optionsOf("followup-assignee").map(([, text]) => text);
     expect(assignees).toEqual(["Unassigned", "Open ELIS (admin)"]);
   });
 
@@ -129,7 +125,7 @@ describe("CreateFollowUpPage", () => {
     renderPage(<CreateFollowUpPage />);
     await pickPatientAndSpecimen();
 
-    fireEvent.click(document.getElementById("followup-save"));
+    fireEvent.click(byId("followup-save"));
 
     expect(await screen.findAllByText("Required")).toHaveLength(2);
     expect(posts()).toEqual([]);
@@ -140,26 +136,26 @@ describe("CreateFollowUpPage", () => {
     const { notifications, location } = renderPage(<CreateFollowUpPage />);
     await pickPatientAndSpecimen();
 
-    fireEvent.change(document.getElementById("followup-action-type"), {
+    fireEvent.change(byId("followup-action-type"), {
       target: { value: "OTHER" },
     });
-    fireEvent.click(document.getElementById("followup-priority-HIGH"));
-    fireEvent.change(document.getElementById("followup-description"), {
+    fireEvent.click(byId("followup-priority-HIGH"));
+    fireEvent.change(byId("followup-description"), {
       target: { value: "  Specimen clarity to check  " },
     });
-    fireEvent.change(document.getElementById("followup-assignee"), {
+    fireEvent.change(byId("followup-assignee"), {
       target: { value: "1" },
     });
-    fireEvent.change(document.getElementById("followup-due-date"), {
+    fireEvent.change(byId("followup-due-date"), {
       target: { value: "12/24/2026" },
     });
-    fireEvent.change(document.getElementById("followup-notes"), {
+    fireEvent.change(byId("followup-notes"), {
       target: { value: "  call the ward  " },
     });
-    fireEvent.click(document.getElementById("followup-save"));
+    fireEvent.click(byId("followup-save"));
 
     await waitFor(() =>
-      expect(location.current.pathname).toBe(
+      expect(location.current?.pathname).toBe(
         "/m/specimen-followup/followups/9",
       ),
     );
@@ -194,13 +190,13 @@ describe("CreateFollowUpPage", () => {
     renderPage(<CreateFollowUpPage />);
     await pickPatientAndSpecimen();
 
-    fireEvent.change(document.getElementById("followup-action-type"), {
+    fireEvent.change(byId("followup-action-type"), {
       target: { value: "RECOLLECTION" },
     });
-    fireEvent.change(document.getElementById("followup-description"), {
+    fireEvent.change(byId("followup-description"), {
       target: { value: "Recollect" },
     });
-    fireEvent.click(document.getElementById("followup-save"));
+    fireEvent.click(byId("followup-save"));
 
     await waitFor(() => expect(posts()).toHaveLength(1));
     expect(posts()[0].body).toEqual({
@@ -225,13 +221,13 @@ describe("CreateFollowUpPage", () => {
     const { notifications, location } = renderPage(<CreateFollowUpPage />);
     await pickPatientAndSpecimen();
 
-    fireEvent.change(document.getElementById("followup-action-type"), {
+    fireEvent.change(byId("followup-action-type"), {
       target: { value: "OTHER" },
     });
-    fireEvent.change(document.getElementById("followup-description"), {
+    fireEvent.change(byId("followup-description"), {
       target: { value: "x" },
     });
-    fireEvent.click(document.getElementById("followup-save"));
+    fireEvent.click(byId("followup-save"));
 
     expect(await screen.findByText("Too long")).toBeInTheDocument();
     expect(notifications).toEqual([
@@ -241,8 +237,8 @@ describe("CreateFollowUpPage", () => {
         message: "Invalid follow-up",
       },
     ]);
-    expect(location.current.pathname).not.toMatch(/followups\/\d+/);
-    expect(document.getElementById("followup-save")).not.toBeDisabled();
+    expect(location.current?.pathname).not.toMatch(/followups\/\d+/);
+    expect(byId("followup-save")).not.toBeDisabled();
   });
 
   it("says so when the patient has no specimens", async () => {
@@ -255,7 +251,7 @@ describe("CreateFollowUpPage", () => {
     expect(
       await screen.findByTestId("followup-no-specimens"),
     ).toHaveTextContent("This patient has no specimens in OpenELIS yet.");
-    expect(document.getElementById("followup-save")).toBeNull();
+    expect(byId("followup-save")).toBeNull();
   });
 
   it("says so when the specimens cannot be read", async () => {
