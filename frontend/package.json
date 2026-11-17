@@ -8,8 +8,9 @@
     "build": "vite build",
     "dev": "vite",
     "test": "vitest run --passWithNoTests",
-    "format": "prettier --write \"src/**/*.{js,jsx,json}\" vite.config.js",
-    "check-format": "prettier --check \"src/**/*.{js,jsx,json}\" vite.config.js"
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json}\" vite.config.js",
+    "check-format": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json}\" vite.config.js",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "@carbon/icons-react": "^11.17.0",
@@ -24,9 +25,12 @@
     "@carbon/icons-react": "^11.77.1",
     "@carbon/react": "^1.104.1",
     "@module-federation/vite": "^1.23.8",
+    "@openelis/module-sdk": "file:../core/frontend/packages/module-sdk",
     "@tanstack/react-query": "^4.44.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^12.1.5",
+    "@types/react": "^17.0.89",
+    "@types/react-dom": "^17.0.26",
     "@vitejs/plugin-react": "^6.0.1",
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
@@ -35,6 +39,7 @@
     "react-intl": "^5.25.1",
     "react-router-dom": "^5.3.4",
     "sass": "^1.93.2",
+    "typescript": "^6.0.3",
     "vite": "^8.3.2",
     "vitest": "^4.1.11"
   }

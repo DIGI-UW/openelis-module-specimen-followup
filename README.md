@@ -178,12 +178,24 @@ mvn -q install -DskipTests -Dmaven.test.skip=true
 mvn -q -f module-test/pom.xml install -DskipTests
 ```
 
+The frontend installs `@openelis/module-sdk` from that same core checkout,
+which it expects at `./core` inside this repository (the CI checks the core
+out there; `scripts/dev-stack up --module` links it). Without the dev stack,
+link it once:
+
+```bash
+ln -s <core checkout> core
+```
+
 Then, in this repository:
 
 ```bash
-mvn verify                      # backend tests, frontend build and tests, the JAR
+mvn verify                      # backend tests, frontend type check, build and tests, the JAR
 mvn verify -DskipFrontend=true  # backend only
 ```
+
+Without the link, `npm ci` still succeeds and the type check then stops on
+"tsconfig.base.json not found": that is the missing `core`.
 
 The JAR, `target/specimen-followup-<version>.jar`, carries the manifest
 (`META-INF/openelis-module.json`), the classes, the Liquibase changelogs and

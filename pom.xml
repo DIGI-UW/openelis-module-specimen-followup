@@ -128,6 +128,17 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <!-- tsc checks every openelis_core/* import against the module SDK's declarations -->
+                        <id>npm run typecheck</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <arguments>run typecheck</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>npm test</id>
                         <goals>
                             <goal>npm</goal>

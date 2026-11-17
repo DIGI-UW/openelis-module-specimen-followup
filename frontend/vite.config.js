@@ -1,47 +1,26 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { federation } from "@module-federation/vite";
+import { coreRemote, sharedForModule } from "@openelis/module-sdk/shared";
+import {
+  openelisCoreAliases,
+  openelisCoreDedupe,
+} from "@openelis/module-sdk/testing";
 
 /**
  * The module's pages as a Module Federation remote of the OpenELIS shell
  * (docs/modules.md in the core repository). The remote name is the module id
  * with hyphens replaced; each exposed name is one of the manifest's routes.
  * The shell provides the shared singletons at runtime, so none of them is
- * bundled here, and the core surface is imported from `openelis_core/*`.
+ * bundled here, and the core surface is imported from `openelis_core/*`. Both
+ * settings come from the module SDK, so the shared list is written once, in
+ * the core.
  *
  * `vite build` writes straight into the Maven output directory, so the JAR
  * carries the prebuilt bundle under META-INF/resources/modules/<id>/.
  */
 const MODULE_ID = "specimen-followup";
 const REMOTE_NAME = "specimen_followup";
-
-// import: false, because the shell always provides these; the module never
-// ships a fallback copy, which keeps the bundle to the module's own code.
-export const SHARED_SINGLETONS = {
-  react: { singleton: true, requiredVersion: "^17.0.0", import: false },
-  "react-dom": { singleton: true, requiredVersion: "^17.0.0", import: false },
-  "react-router-dom": {
-    singleton: true,
-    requiredVersion: "^5.2.0",
-    import: false,
-  },
-  "react-intl": { singleton: true, requiredVersion: "^5.20.0", import: false },
-  "@carbon/react": {
-    singleton: true,
-    requiredVersion: "^1.15.0",
-    import: false,
-  },
-  "@carbon/icons-react": {
-    singleton: true,
-    requiredVersion: "^11.17.0",
-    import: false,
-  },
-  "@tanstack/react-query": {
-    singleton: true,
-    requiredVersion: "^4.44.0",
-    import: false,
-  },
-};
 
 export default defineConfig(({ mode }) => ({
   plugins: [
@@ -53,17 +32,12 @@ export default defineConfig(({ mode }) => ({
         "./CreateFollowUpPage": "./src/pages/CreateFollowUpPage.jsx",
         "./FollowUpListPage": "./src/pages/FollowUpListPage.jsx",
         "./FollowUpDetailPage": "./src/pages/FollowUpDetailPage.jsx",
-        "./FollowUpDashboardCard": "./src/slots/FollowUpDashboardCard.jsx",
+        "./FollowUpDashboardCard": "./src/slots/FollowUpDashboardCard.tsx",
       },
-      remotes: {
-        openelis_core: {
-          type: "module",
-          name: "openelis_core",
-          // The shell's own remote entry, served next to index.html on the same origin
-          entry: "/remoteEntry.js",
-        },
-      },
-      shared: SHARED_SINGLETONS,
+      // The shell's own remote entry, served next to index.html on the same origin
+      remotes: { openelis_core: coreRemote() },
+      // The shell's singletons with import: false: the module ships no fallback copy
+      shared: sharedForModule(),
       dts: false,
     }),
   ],
@@ -81,12 +55,15 @@ export default defineConfig(({ mode }) => ({
     cors: true,
     origin: "http://localhost:5174",
   },
+  resolve: {
+    // One React (and one of each shared library) for the module and the SDK's doubles
+    dedupe: openelisCoreDedupe,
+  },
   test: {
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/setupTests.js"],
-    alias: [
-      { find: /^openelis_core\/(.*)$/, replacement: "/src/test/coreStubs/$1.jsx" },
-    ],
+    // A page test renders against the SDK's doubles; the shell exists only at runtime
+    alias: openelisCoreAliases,
   },
 }));

@@ -7,3 +7,6 @@ frontend/.mf/
 .idea/
 *.iml
 .vscode/
+
+# The core checkout a developer links here for the SDK install (CI checks it out)
+/core
