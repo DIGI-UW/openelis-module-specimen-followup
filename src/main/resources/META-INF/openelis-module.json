@@ -1,5 +1,5 @@
 {
-  "$schema": "https://openelis-global.org/schemas/openelis-module/1",
+  "$schema": "https://raw.githubusercontent.com/DIGI-UW/OpenELIS-Global-2/develop/module-contracts/openelis-module-api/src/main/resources/META-INF/openelis-module.schema.json",
   "schemaVersion": 1,
   "id": "specimen-followup",
   "kind": "module",
