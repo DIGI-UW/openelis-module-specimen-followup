@@ -28,8 +28,15 @@ import {
   useOpenElisApi,
   usePermission,
 } from "openelis_core/sdk";
-import { isoToSiteDate, siteDateFormat } from "../followUpApi";
-import { ROUTES, endpoints, PRIORITIES, STATUSES } from "../followUpApi";
+import {
+  ROUTES,
+  actionTypeLabel,
+  endpoints,
+  isoToSiteDate,
+  PRIORITIES,
+  siteDateFormat,
+  STATUSES,
+} from "../followUpApi";
 
 const STATUS_TAG = {
   OPEN: "blue",
@@ -158,7 +165,7 @@ export default function FollowUpListPage() {
           .join(", ") || item.patientId
       : item.patientId,
     accessionNumber: item.accessionNumber || "",
-    actionType: item.actionTypeLabel || item.actionType,
+    actionType: actionTypeLabel(intl, item.actionType, item.actionTypeLabel),
     priority: item.priority,
     status: item.status,
     assignedUserName: item.assignedUserName || "",
@@ -252,7 +259,7 @@ export default function FollowUpListPage() {
                     <SelectItem
                       key={type.value}
                       value={type.value}
-                      text={type.label}
+                      text={actionTypeLabel(intl, type.value, type.label)}
                     />
                   ))}
                 </Select>

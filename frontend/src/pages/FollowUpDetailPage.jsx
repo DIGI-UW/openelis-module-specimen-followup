@@ -34,6 +34,7 @@ import {
 } from "openelis_core/sdk";
 import {
   ROUTES,
+  actionTypeLabel,
   endpoints,
   fieldErrorsOf,
   isRefusal,
@@ -331,7 +332,11 @@ export default function FollowUpDetailPage() {
               <StructuredListBody>
                 {row(
                   "mod.specimen-followup.field.actionType",
-                  followUp.actionTypeLabel,
+                  actionTypeLabel(
+                    intl,
+                    followUp.actionType,
+                    followUp.actionTypeLabel,
+                  ),
                   "followup-action-type",
                 )}
                 {row(
@@ -397,7 +402,7 @@ export default function FollowUpDetailPage() {
                     <SelectItem
                       key={type.value}
                       value={type.value}
-                      text={type.label}
+                      text={actionTypeLabel(intl, type.value, type.label)}
                     />
                   ))}
                 </Select>

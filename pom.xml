@@ -21,14 +21,12 @@
         <openelis.module-api.version>1.0.0-SNAPSHOT</openelis.module-api.version>
         <openelis.spi.version>1.0.0-SNAPSHOT</openelis.spi.version>
         <module.id>specimen-followup</module.id>
-        <!-- -DskipFrontend builds the backend only (unit test runs) -->
         <skipFrontend>false</skipFrontend>
         <node.version>v20.20.0</node.version>
         <npm.version>10.8.2</npm.version>
     </properties>
 
     <dependencies>
-        <!-- The three core contracts, provided by the application at runtime, never packaged -->
         <dependency>
             <groupId>org.openelisglobal</groupId>
             <artifactId>openelis-module-api</artifactId>
@@ -91,7 +89,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
                 <configuration>
-                    <release>21</release>
                     <parameters>true</parameters>
                 </configuration>
             </plugin>
@@ -159,26 +156,6 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <arguments>run build</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <!-- Module-only libraries (compile scope that the core does not provide) go to lib/; this module has none -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.8.1</version>
-                <executions>
-                    <execution>
-                        <id>bundle module libraries</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
-                            <includeScope>runtime</includeScope>
-                            <excludeScope>provided</excludeScope>
                         </configuration>
                     </execution>
                 </executions>

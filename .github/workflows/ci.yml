@@ -13,12 +13,9 @@ on:
         required: false
         default: ""
 
-# The module compiles against the core contracts (openelis-spi,
-# openelis-module-api) and the core's classes (openelisglobal:classes), which
-# are not published to a remote repository yet: the workflow checks out
-# OpenELIS Global at the branch the module targets and installs them locally,
-# cached by the core commit so a module change does not rebuild the core.
-# Repository variables CORE_REPOSITORY and CORE_REF override the source.
+# The core contracts and classes are not published yet: the workflow checks out
+# the core (CORE_REPOSITORY at CORE_REF, repository variables) and installs
+# them locally, cached per core commit.
 env:
   CORE_REPOSITORY: ${{ vars.CORE_REPOSITORY || 'DIGI-UW/OpenELIS-Global-2' }}
   CORE_REF: ${{ vars.CORE_REF || 'develop' }}
@@ -136,11 +133,10 @@ jobs:
           ls -l dist
           title="Specimen Follow-up ${VERSION}"
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
-            # A pushed tag publishes the release.
             gh release create "${GITHUB_REF_NAME}" dist/*.jar --repo "${GITHUB_REPOSITORY}" \
               --title "${title}" --generate-notes
           else
-            # A manual run makes a draft to check before publishing; it creates the tag on publish.
+            # A manual run makes a draft; publishing it creates the tag.
             gh release create "v${VERSION}" dist/*.jar --repo "${GITHUB_REPOSITORY}" \
               --title "${title}" --generate-notes --draft --target "${GITHUB_SHA}"
           fi

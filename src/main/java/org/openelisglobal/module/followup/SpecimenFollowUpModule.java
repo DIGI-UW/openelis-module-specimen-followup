@@ -4,9 +4,8 @@ import org.openelisglobal.module.api.ModuleContext;
 import org.openelisglobal.module.api.OpenElisModule;
 
 /**
- * The module's lifecycle hooks. Validation checks the one configuration property the module reads; start-up only
- * logs, because the runtime has already run the migrations, registered the permissions and the menu, and wired the
- * controller when it gets here.
+ * Lifecycle hooks: validation checks the one configuration property the module reads; by {@code onStart} the
+ * runtime has already migrated, registered the permissions and the menu and wired the controller, so it only logs.
  */
 public class SpecimenFollowUpModule implements OpenElisModule {
 

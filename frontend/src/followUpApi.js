@@ -52,6 +52,19 @@ export function isRefusal(response) {
   );
 }
 
+/**
+ * An action type's label in the shell's locale: the module's own message for
+ * the value when the active bundle has one, else the label the API sent, else
+ * the value.
+ */
+export function actionTypeLabel(intl, value, serverLabel) {
+  const id = `mod.specimen-followup.actionType.${value}`;
+  if (value && intl && intl.messages && intl.messages[id]) {
+    return intl.formatMessage({ id });
+  }
+  return serverLabel || value || "";
+}
+
 export const PRIORITIES = ["LOW", "NORMAL", "HIGH"];
 export const STATUSES = ["OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
 

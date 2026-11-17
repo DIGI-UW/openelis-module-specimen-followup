@@ -3,11 +3,8 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
 
-    <!--
-        The module's own schema. Every changeset id starts with the module id and the author is the module id
-        (the core refuses the changelog otherwise); tables use the mod_specimen_followup_ prefix in the clinlims
-        schema. Core tables are never touched: a follow-up references the core patient and sample by their ids.
-    -->
+    <!-- Changeset ids and authors carry the module id (the core requires it); the table lives in clinlims under
+         the mod_specimen_followup_ prefix and references core patients and samples by id, never touching their tables -->
     <changeSet id="specimen-followup-001-follow-up-table" author="specimen-followup">
         <preConditions onFail="MARK_RAN">
             <not>
