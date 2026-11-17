@@ -30,7 +30,7 @@ describe("FollowUpDashboardCard", () => {
 
   it("shows the number of open follow-ups the API reports", async () => {
     apiResponses[
-      "/rest/modules/specimen-followup/followups?status=OPEN&page=1&size=1"
+      "/rest/modules/specimen-followup/followups?status=OPEN&page=0&size=1"
     ] = {
       total: 3,
       items: [],
@@ -38,13 +38,13 @@ describe("FollowUpDashboardCard", () => {
     renderCard();
     expect(await screen.findByText("3")).toBeInTheDocument();
     expect(apiCalls.map((call) => call.endpoint)).toEqual([
-      "/rest/modules/specimen-followup/followups?status=OPEN&page=1&size=1",
+      "/rest/modules/specimen-followup/followups?status=OPEN&page=0&size=1",
     ]);
   });
 
   it("shows zero when the API refuses the count", async () => {
     apiResponses[
-      "/rest/modules/specimen-followup/followups?status=OPEN&page=1&size=1"
+      "/rest/modules/specimen-followup/followups?status=OPEN&page=0&size=1"
     ] = () => {
       throw new Error("503");
     };

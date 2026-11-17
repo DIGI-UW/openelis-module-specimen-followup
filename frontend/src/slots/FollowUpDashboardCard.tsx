@@ -21,7 +21,7 @@ export default function FollowUpDashboardCard() {
     let cancelled = false;
     api
       .get<FollowUpPage>(
-        endpoints.followUps({ status: "OPEN", page: 1, size: 1 }),
+        endpoints.followUps({ status: "OPEN", page: 0, size: 1 }),
       )
       .then((page) => {
         if (!cancelled) {
