@@ -13,7 +13,7 @@
   "requires": {
     "openelis": ">=3.4.0",
     "coreApi": "^1.0",
-    "frontendContract": "^1.0"
+    "frontendContract": "^1.1"
   },
   "backend": {
     "basePackages": [
