@@ -5,6 +5,10 @@ import { useIntl } from "react-intl";
 import { useOpenElisApi } from "openelis_core/sdk";
 import { ROUTES, endpoints } from "../followUpApi";
 
+interface FollowUpPage {
+  total?: number;
+}
+
 /**
  * The module's contribution to the core home dashboard's `home.dashboard.cards`
  * slot: one card with the number of open follow-ups, opening the list filtered
@@ -14,12 +18,14 @@ export default function FollowUpDashboardCard() {
   const intl = useIntl();
   const history = useHistory();
   const api = useOpenElisApi();
-  const [open, setOpen] = useState(null);
+  const [open, setOpen] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     api
-      .get(endpoints.followUps({ status: "OPEN", page: 1, size: 1 }))
+      .get<FollowUpPage>(
+        endpoints.followUps({ status: "OPEN", page: 1, size: 1 }),
+      )
       .then((page) => {
         if (!cancelled) {
           setOpen(page && typeof page.total === "number" ? page.total : 0);

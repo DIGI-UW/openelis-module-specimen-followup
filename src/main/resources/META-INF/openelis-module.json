@@ -1,4 +1,5 @@
 {
+  "$schema": "https://openelis-global.org/schemas/openelis-module/1",
   "schemaVersion": 1,
   "id": "specimen-followup",
   "kind": "module",
