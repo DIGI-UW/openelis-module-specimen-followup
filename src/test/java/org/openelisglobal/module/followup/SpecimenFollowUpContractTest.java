@@ -6,10 +6,6 @@ import org.junit.Test;
 import org.openelisglobal.module.api.manifest.ModuleManifest;
 import org.openelisglobal.module.test.ModuleContractTest;
 
-/**
- * The core's module contract (manifest, declared classes, changelog, guarded endpoints under the module prefix,
- * frontend bundle and message keys) through the core's test kit, plus what this module declares.
- */
 public class SpecimenFollowUpContractTest extends ModuleContractTest {
 
     @Test

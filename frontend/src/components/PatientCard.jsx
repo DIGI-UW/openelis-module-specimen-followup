@@ -12,7 +12,8 @@ export default function PatientCard({ patient, onClear }) {
     <Tile data-testid="followup-patient-card" className="mod-followup-patient">
       <strong>{name || patient.patientId}</strong>
       <div>
-        <FormattedMessage id="mod.specimen-followup.patient.id" />: {patient.patientId}
+        <FormattedMessage id="mod.specimen-followup.patient.id" />:{" "}
+        {patient.patientId}
         {patient.nationalId ? ` · ${patient.nationalId}` : ""}
         {patient.subjectNumber ? ` · ${patient.subjectNumber}` : ""}
       </div>
@@ -21,7 +22,12 @@ export default function PatientCard({ patient, onClear }) {
         {patient.birthDate || patient.birthDateForDisplay || ""}
       </div>
       {onClear && (
-        <Button kind="ghost" size="sm" onClick={onClear} data-testid="followup-change-patient">
+        <Button
+          kind="ghost"
+          size="sm"
+          onClick={onClear}
+          data-testid="followup-change-patient"
+        >
           <FormattedMessage id="mod.specimen-followup.create.changePatient" />
         </Button>
       )}
